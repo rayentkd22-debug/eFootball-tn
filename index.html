@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>eFootball Arena | منصة eFootball العالمية</title>
+<meta name="description" content="العب وتنافس وتواصل مع أفضل لاعبي eFootball حول العالم">
+<meta name="theme-color" content="#0a0e1a">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:#0a0e1a;color:#e2e8f0;min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#111827}
+::-webkit-scrollbar-thumb{background:#1e2d45;border-radius:2px}
+.glass{background:rgba(21,29,46,0.7);backdrop-filter:blur(12px);border:1px solid rgba(30,45,69,0.5)}
+.gradient-text{background:linear-gradient(135deg,#f5c518,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.glow-yellow{box-shadow:0 0 20px rgba(245,197,24,0.3)}
+.arena-btn{background:linear-gradient(135deg,#f5c518,#f97316);color:#000;font-weight:700;border:none;cursor:pointer;transition:all 0.3s}
+.arena-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(245,197,24,0.4)}
+.arena-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.card-hover{transition:all 0.3s}
+.card-hover:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.4);border-color:rgba(245,197,24,0.3)}
+.status-open{background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid #22c55e}
+.status-live{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid #ef4444;animation:pulse 2s infinite}
+.status-soon{background:rgba(245,197,24,0.15);color:#f5c518;border:1px solid #f5c518}
+.status-finished{background:rgba(100,116,139,0.15);color:#64748b;border:1px solid #64748b}
+.status-closed{background:rgba(100,116,139,0.15);color:#64748b;border:1px solid #64748b}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.animate-slide-up{animation:slideUp 0.5s ease-out}
+.animate-fade-in{animation:fadeIn 0.5s ease-out}
+.animate-shake{animation:shake 0.4s ease}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:12px;font-size:14px;font-weight:700;z-index:9998;opacity:0;transition:opacity 0.3s;pointer-events:none}
+.toast.show{opacity:1}
+.toast-success{background:#22c55e;color:#fff}
+.toast-error{background:#ef4444;color:#fff}
+.toast-info{background:#3b82f6;color:#fff}
+.toast-warn{background:#f59e0b;color:#fff}
+.tab-active{color:#f5c518;border-bottom:2px solid #f5c518}
+.tab-inactive{color:#64748b;border-bottom:2px solid transparent}
+.tab-inactive:hover{color:#e2e8f0}
+.hide-scrollbar::-webkit-scrollbar{display:none}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#f5c518}
+#loading-screen{position:fixed;inset:0;background:#0a0e1a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s}
+#loading-screen.hidden{opacity:0;pointer-events:none}
+.load-ball{font-size:60px;animation:spin 2s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.load-bar{width:200px;height:4px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin-top:20px}
+.load-bar-fill{height:100%;background:linear-gradient(90deg,#f5c518,#f97316);border-radius:4px;animation:loadBar 2s ease forwards}
+@keyframes loadBar{0%{width:0%}70%{width:85%}100%{width:100%}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal-box{background:#111827;border:1px solid #1e2d45;border-radius:18px;padding:24px;width:100%;max-width:400px;animation:slideUp 0.3s ease;max-height:90vh;overflow-y:auto}
+.rank-bronze{color:#cd7f32}
+.rank-silver{color:#94a3b8}
+.rank-gold{color:#f5c518}
+.rank-diamond{color:#b9f2ff}
+.rank-elite{color:#a855f7}
+.rank-champion{color:#ef4444}
+.badge-verified{background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid #22c55e;font-size:10px;padding:1px 6px;border-radius:10px}
+.msg-bubble-me{background:linear-gradient(135deg,#f5c518,#f97316);color:#000;border-radius:14px 14px 2px 14px;padding:8px 12px;font-size:12px;max-width:80%;word-wrap:break-word}
+.msg-bubble-other{background:#1e2d45;color:#e2e8f0;border-radius:14px 14px 14px 2px;padding:8px 12px;font-size:12px;max-width:80%;word-wrap:break-word}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="load-ball" id="load-icon">⚽</div>
+  <div style="font-size:24px;font-weight:900;margin-top:16px" id="load-title">eFootball Arena</div>
+  <div style="font-size:14px;color:#64748b;margin-top:8px" id="load-status">🔄 جاري اختبار الاتصال...</div>
+  <div class="load-bar" id="load-bar"><div class="load-bar-fill"></div></div>
+  <div id="load-error" style="display:none;margin-top:20px;padding:15px;background:rgba(239,68,68,0.2);border:1px solid #ef4444;border-radius:10px;max-width:320px;text-align:center;margin-left:auto;margin-right:auto">
+    <div style="font-size:18px;font-weight:700;color:#ef4444;margin-bottom:10px">❌ خطأ في الاتصال</div>
+    <div id="error-text" style="font-size:13px;color:#e2e8f0;line-height:1.7;text-align:right;direction:rtl"></div>
+    <button onclick="location.reload()" style="margin-top:12px;padding:10px 20px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-weight:700;cursor:pointer;font-size:14px">🔄 إعادة المحاولة</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Auth Screen -->
+<div id="auth-screen" style="display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#0d1225;position:relative;overflow:hidden">
+  <div style="position:absolute;width:360px;height:360px;border-radius:50%;border:65px solid rgba(180,20,20,0.15);top:50%;left:50%;transform:translate(-50%,-52%) rotate(-20deg);pointer-events:none"></div>
+  <div style="position:absolute;width:230px;height:230px;border-radius:50%;border:42px solid rgba(180,20,20,0.09);top:50%;left:50%;transform:translate(-50%,-52%) rotate(10deg);pointer-events:none"></div>
+
+  <div style="background:#f5c518;border-radius:14px;padding:12px 28px;margin-bottom:8px;position:relative;z-index:1">
+    <span style="font-size:24px;font-weight:900;color:#111;letter-spacing:2px">eFootball Arena</span>
+  </div>
+  <div style="color:#64748b;font-size:13px;margin-bottom:20px;position:relative;z-index:1">🌍 منصة eFootball العالمية</div>
+
+  <div class="glass" style="border-radius:18px;padding:22px 18px;width:100%;max-width:400px;position:relative;z-index:1">
+    <button onclick="loginGoogle()" style="display:flex;align-items:center;justify-content:center;gap:12px;background:#fff;color:#111;font-weight:700;font-size:14px;padding:13px;border-radius:12px;border:none;cursor:pointer;width:100%;margin-bottom:12px;font-family:'Cairo',sans-serif">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      المتابعة مع Google
+    </button>
+
+    <div style="background:rgba(180,20,20,0.08);border:1px solid rgba(180,20,20,0.3);border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.7;color:#e2e8f0;margin-bottom:12px">
+      <div style="color:#f5c518;font-weight:700">🔒 أمانك يهمنا</div>
+      eFootball Arena منصة مرافقة فقط — <span style="color:#f5c518;font-weight:700">لا نطلب كلمة مرور لعبتك</span>. بياناتك محمية تماماً.
+    </div>
+
+    <div style="text-align:center;color:#64748b;font-size:12px;padding:4px 0;margin:12px 0;position:relative">
+      <span style="position:relative;z-index:1;background:#151d2e;padding:0 10px">أو بالإيميل</span>
+      <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:#1e2d45"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="tab-login" onclick="switchTab('login')" style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;background:#f5c518;color:#000;border:none;cursor:pointer">تسجيل الدخول</button>
+      <button id="tab-register" onclick="switchTab('register')" style="flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;background:#1a2338;color:#64748b;border:1px solid #1e2d45;cursor:pointer">إنشاء حساب</button>
+    </div>
+
+    <div id="form-login">
+      <div id="login-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:12px;padding:10px;border-radius:8px;margin-bottom:10px"></div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">البريد الإلكتروني</label>
+        <div style="position:relative">
+          <input id="login-email" type="email" placeholder="example@email.com" dir="ltr" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%;padding-left:40px">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px">✉️</span>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">كلمة المرور</label>
+        <div style="position:relative">
+          <input id="login-pass" type="password" placeholder="••••••••" dir="ltr" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%;padding-left:40px">
+          <span onclick="togglePass('login-pass')" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;cursor:pointer">👁️</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#64748b;cursor:pointer;text-align:right;margin-bottom:8px" onclick="showToast('📧 تحقق من إيميلك',false,true)">نسيت كلمة السر؟</div>
+      <button onclick="doLogin()" class="arena-btn" style="width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:900;font-family:'Cairo',sans-serif">دخول</button>
+    </div>
+
+    <div id="form-register" style="display:none">
+      <div id="reg-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:12px;padding:10px;border-radius:8px;margin-bottom:10px"></div>
+      <div id="reg-success" style="display:none;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:#22c55e;font-size:12px;padding:10px;border-radius:8px;margin-bottom:10px"></div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">اسم اللاعب</label>
+        <input id="reg-name" type="text" placeholder="Ahmed_Player" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">البريد الإلكتروني</label>
+        <div style="position:relative">
+          <input id="reg-email" type="email" placeholder="example@email.com" dir="ltr" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%;padding-left:40px">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px">✉️</span>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">رقم واتساب</label>
+        <div style="display:flex;gap:6px">
+          <select id="reg-country" style="flex:0 0 100px;background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px;font-family:'Cairo',sans-serif;font-size:12px;color:#e2e8f0;cursor:pointer">
+            <option value="216">🇹🇳 +216</option>
+            <option value="20">🇪🇬 +20</option>
+            <option value="966">🇸🇦 +966</option>
+            <option value="971">🇦🇪 +971</option>
+            <option value="974">🇶🇦 +974</option>
+            <option value="965">🇰🇼 +965</option>
+            <option value="962">🇯🇴 +962</option>
+            <option value="961">🇱🇧 +961</option>
+            <option value="963">🇸🇾 +963</option>
+            <option value="964">🇮🇶 +964</option>
+            <option value="967">🇾🇪 +967</option>
+            <option value="212">🇲🇦 +212</option>
+            <option value="213">🇩🇿 +213</option>
+            <option value="218">🇱🇾 +218</option>
+            <option value="249">🇸🇩 +249</option>
+            <option value="970">🇵🇸 +970</option>
+          </select>
+          <div style="position:relative;flex:1">
+            <input id="reg-whatsapp" type="tel" placeholder="50123456" dir="ltr" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%;padding-left:40px">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px">📱</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">كلمة المرور</label>
+        <div style="position:relative">
+          <input id="reg-pass" type="password" placeholder="••••••••" dir="ltr" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%;padding-left:40px">
+          <span onclick="togglePass('reg-pass')" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;cursor:pointer">👁️</span>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">تأكيد كلمة المرور</label>
+        <input id="reg-pass2" type="password" placeholder="••••••••" dir="ltr" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+      </div>
+      <button onclick="doRegister()" class="arena-btn" style="width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:900;font-family:'Cairo',sans-serif">إنشاء حساب ✅</button>
+    </div>
+  </div>
+
+  <a href="https://chat.whatsapp.com/example" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#128c7e,#25d366);color:#fff;font-weight:700;font-size:14px;padding:13px 24px;border-radius:12px;text-decoration:none;width:100%;max-width:400px;margin-top:14px;position:relative;z-index:1">
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.776L0 32l8.463-2.004A15.94 15.94 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.406 22.594c-.35.984-2.04 1.88-2.812 2-.735.113-1.656.16-5.328-1.14-4.469-1.578-7.344-6.11-7.563-6.39-.219-.282-1.781-2.375-1.781-4.532 0-2.156 1.125-3.218 1.531-3.656.406-.437.89-.547 1.188-.547h.843c.297 0 .594.004.844.625.297.734 1.015 2.578 1.094 2.766.078.187.125.406.016.656-.11.25-.172.406-.344.61-.172.203-.36.453-.516.609-.172.172-.344.359-.148.703.197.344.875 1.453 1.875 2.344 1.297 1.156 2.39 1.516 2.734 1.688.344.172.547.14.75-.094.203-.234.875-1.016 1.11-1.359.234-.344.468-.297.797-.172.328.125 2.078 1.016 2.422 1.188.344.172.578.266.656.406.078.14.078.844-.28 1.828z"/></svg>
+    انضم لمجموعة واتساب الرسمية 🏆
+  </a>
+</div>
+
+<!-- App Screen -->
+<div id="app-screen" style="display:none">
+  <header style="background:#111827;border-bottom:1px solid #1e2d45;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100">
+    <div id="header-pts" style="background:rgba(245,197,24,0.15);border:1px solid rgba(245,197,24,0.3);color:#f5c518;font-size:10px;font-weight:700;padding:3px 7px;border-radius:20px;cursor:pointer" onclick="showTab('profile')">🏅 0 pts</div>
+    <div style="font-weight:900;font-size:14px;letter-spacing:1px">e<span style="color:#f5c518">Football</span> Arena</div>
+    <div style="display:flex;align-items:center;gap:7px">
+      <button onclick="toggleNotif()" style="background:none;border:none;cursor:pointer;font-size:17px;position:relative;padding:3px">🔔<span id="notif-badge" style="display:none;position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center">0</span></button>
+      <div id="user-avatar" onclick="showTab('profile')" style="width:30px;height:30px;background:linear-gradient(135deg,#f5c518,#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;font-weight:700;color:#000">A</div>
+    </div>
+  </header>
+
+  <div style="display:flex;background:#111827;border-bottom:1px solid #1e2d45;overflow-x:auto;scrollbar-width:none" class="hide-scrollbar">
+    <button id="tab-btn-home" onclick="showTab('home')" class="tab-active" style="flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:9px;cursor:pointer;background:none;border:none;white-space:nowrap;font-family:'Cairo',sans-serif"><span style="font-size:14px;display:block;margin-bottom:1px">⊞</span>الرئيسية</button>
+    <button id="tab-btn-tournaments" onclick="showTab('tournaments')" class="tab-inactive" style="flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:9px;cursor:pointer;background:none;border:none;white-space:nowrap;font-family:'Cairo',sans-serif"><span style="font-size:14px;display:block;margin-bottom:1px">🏆</span>البطولات</button>
+    <button id="tab-btn-friendly" onclick="showTab('friendly')" class="tab-inactive" style="flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:9px;cursor:pointer;background:none;border:none;white-space:nowrap;font-family:'Cairo',sans-serif"><span style="font-size:14px;display:block;margin-bottom:1px">⚽</span>ودية</button>
+    <button id="tab-btn-leaderboard" onclick="showTab('leaderboard')" class="tab-inactive" style="flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:9px;cursor:pointer;background:none;border:none;white-space:nowrap;font-family:'Cairo',sans-serif"><span style="font-size:14px;display:block;margin-bottom:1px">📋</span>الترتيب</button>
+    <button id="tab-btn-messages" onclick="showTab('messages')" class="tab-inactive" style="flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:9px;cursor:pointer;background:none;border:none;white-space:nowrap;font-family:'Cairo',sans-serif"><span style="font-size:14px;display:block;margin-bottom:1px">💬</span>رسائل</button>
+    <button id="tab-btn-profile" onclick="showTab('profile')" class="tab-inactive" style="flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:9px;cursor:pointer;background:none;border:none;white-space:nowrap;font-family:'Cairo',sans-serif"><span style="font-size:14px;display:block;margin-bottom:1px">👤</span>بروفايل</button>
+    <button id="tab-btn-admin" onclick="showTab('admin')" class="tab-inactive" style="display:none;flex:1;min-width:55px;padding:9px 2px;text-align:center;font-size:9px;cursor:pointer;background:none;border:none;white-space:nowrap;font-family:'Cairo',sans-serif"><span style="font-size:14px;display:block;margin-bottom:1px">👑</span>الإدارة</button>
+  </div>
+
+  <main style="padding:12px;max-width:480px;margin:0 auto">
+    <!-- HOME -->
+    <div id="sec-home" class="animate-slide-up">
+      <div id="home-countdown" class="glass glow-yellow" style="border-radius:14px;padding:14px;margin-bottom:12px;text-align:center;display:none">
+        <div style="font-size:11px;color:#a78bfa;margin-bottom:3px;font-weight:600">⏳ البطولة القادمة تبدأ في</div>
+        <div id="home-countdown-title" style="font-size:14px;font-weight:900;margin-bottom:10px;color:#fff">🏆 بطولة الصيف الكبرى</div>
+        <div style="display:flex;justify-content:center;gap:7px">
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:8px;padding:7px 10px;min-width:50px">
+            <span id="cd-days" style="font-size:22px;font-weight:900;color:#f5c518;line-height:1;display:block">00</span>
+            <span style="font-size:9px;color:#a78bfa;margin-top:2px;display:block">يوم</span>
+          </div>
+          <span style="font-size:20px;font-weight:900;color:rgba(124,58,237,0.5);align-self:center;padding-bottom:10px">:</span>
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:8px;padding:7px 10px;min-width:50px">
+            <span id="cd-hours" style="font-size:22px;font-weight:900;color:#f5c518;line-height:1;display:block">00</span>
+            <span style="font-size:9px;color:#a78bfa;margin-top:2px;display:block">ساعة</span>
+          </div>
+          <span style="font-size:20px;font-weight:900;color:rgba(124,58,237,0.5);align-self:center;padding-bottom:10px">:</span>
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:8px;padding:7px 10px;min-width:50px">
+            <span id="cd-mins" style="font-size:22px;font-weight:900;color:#f5c518;line-height:1;display:block">00</span>
+            <span style="font-size:9px;color:#a78bfa;margin-top:2px;display:block">دقيقة</span>
+          </div>
+          <span style="font-size:20px;font-weight:900;color:rgba(124,58,237,0.5);align-self:center;padding-bottom:10px">:</span>
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(124,58,237,0.3);border-radius:8px;padding:7px 10px;min-width:50px">
+            <span id="cd-secs" style="font-size:22px;font-weight:900;color:#f5c518;line-height:1;display:block">00</span>
+            <span style="font-size:9px;color:#a78bfa;margin-top:2px;display:block">ثانية</span>
+          </div>
+        </div>
+      </div>
+      <div onclick="showTab('tournaments')" class="glass card-hover" style="border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:linear-gradient(135deg,#16a34a,#22c55e)">
+        <div><h3 style="font-size:13px;font-weight:700;margin-bottom:2px;color:#fff">جاهز للمنافسة؟</h3><p style="font-size:11px;opacity:0.85;color:#fff">سجّل في البطولة الرسمية 🥇</p></div>
+        <div style="font-size:28px;background:rgba(255,255,255,0.15);border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🏆</div>
+      </div>
+      <div onclick="showTab('friendly')" class="glass card-hover" style="border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:linear-gradient(135deg,#0891b2,#06b6d4)">
+        <div><h3 style="font-size:13px;font-weight:700;margin-bottom:2px;color:#fff">تبحث على خصم؟</h3><p style="font-size:11px;opacity:0.85;color:#fff">مباراة ودية فورية ⚡</p></div>
+        <div style="font-size:28px;background:rgba(255,255,255,0.15);border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0">⚽</div>
+      </div>
+      <div onclick="showTab('leaderboard')" class="glass card-hover" style="border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:linear-gradient(135deg,#6d28d9,#7c3aed)">
+        <div><h3 style="font-size:13px;font-weight:700;margin-bottom:2px;color:#fff">النتائج والترتيب</h3><p style="font-size:11px;opacity:0.85;color:#fff">Classement اللاعبين 📊</p></div>
+        <div style="font-size:28px;background:rgba(255,255,255,0.15);border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0">📋</div>
+      </div>
+      <div onclick="openReportModal()" class="glass card-hover" style="border-radius:14px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:linear-gradient(135deg,#ea580c,#f97316)">
+        <div><h3 style="font-size:13px;font-weight:700;margin-bottom:2px;color:#fff">بلاغ مباراة 🚨</h3><p style="font-size:11px;opacity:0.85;color:#fff">ابعث بلاغ للإدارة</p></div>
+        <div style="font-size:28px;background:rgba(255,255,255,0.15);border-radius:10px;width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🚨</div>
+      </div>
+    </div>
+
+    <!-- TOURNAMENTS -->
+    <div id="sec-tournaments" style="display:none" class="animate-slide-up">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;color:#f5c518">🏆 البطولات</div>
+        <button onclick="openCreateTournament()" class="arena-btn" style="font-size:11px;padding:6px 12px;border-radius:8px">+ جديدة</button>
+      </div>
+      <div id="tournaments-list"></div>
+    </div>
+
+    <!-- TOURNAMENT DETAIL -->
+    <div id="sec-tournament-detail" style="display:none" class="animate-slide-up">
+      <button onclick="showTab('tournaments')" style="background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif;margin-bottom:10px">‹ رجوع للبطولات</button>
+      <div id="tournament-detail-content"></div>
+    </div>
+
+    <!-- FRIENDLY -->
+    <div id="sec-friendly" style="display:none" class="animate-slide-up">
+      <div class="glass" style="border-radius:14px;padding:18px;margin-bottom:12px;text-align:center">
+        <div style="font-size:44px;margin-bottom:10px">⚽</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:5px">مباراة ودية الآن؟</div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:13px">اختر خصم من اللاعبين المتاحين</div>
+      </div>
+      <input type="text" placeholder="🔎 ابحث عن لاعب..." oninput="filterPlayers(this.value)" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:9px 13px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%;margin-bottom:10px;outline:none">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#f5c518">لاعبون متاحون 🟢</div>
+      <div id="friendly-players-list"></div>
+    </div>
+
+    <!-- FRIENDLY MATCH -->
+    <div id="sec-friendly-match" style="display:none" class="animate-slide-up">
+      <button onclick="showTab('friendly')" style="background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif;margin-bottom:10px">‹ رجوع</button>
+      <div id="friendly-match-content"></div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="sec-leaderboard" style="display:none" class="animate-slide-up">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#f5c518">🏅 Classement</div>
+      <div class="glass" style="border-radius:14px;overflow:hidden;margin-bottom:12px">
+        <div style="display:grid;grid-template-columns:28px 1fr 60px 34px 34px 44px;gap:4px;padding:9px 12px;background:rgba(245,197,24,0.08);border-bottom:1px solid #1e2d45;font-size:10px;color:#64748b;font-weight:700">
+          <span>#</span><span>اللاعب</span><span>رتبة</span><span style="text-align:center">ف</span><span style="text-align:center">خ</span><span style="text-align:center">Pts</span>
+        </div>
+        <div id="leaderboard-list"></div>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div id="sec-messages" style="display:none" class="animate-slide-up">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;color:#f5c518">💬 الرسائل</div>
+        <button onclick="openNewMessage()" class="arena-btn" style="font-size:11px;padding:6px 12px;border-radius:8px">+ جديدة</button>
+      </div>
+      <div id="messages-list"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="sec-chat" style="display:none" class="animate-slide-up">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #1e2d45">
+        <button onclick="showTab('messages')" style="background:none;border:none;color:#64748b;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif">‹</button>
+        <div id="chat-avatar" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,#7c3aed,#3b82f6)">K</div>
+        <div id="chat-name" style="font-size:13px;font-weight:700">Khaled_Pro</div>
+      </div>
+      <div id="chat-messages" style="height:calc(100vh - 240px);overflow-y:auto;padding:8px 0;margin-bottom:10px"></div>
+      <div style="display:flex;gap:6px;position:sticky;bottom:0;background:#0a0e1a;padding:8px 0">
+        <input id="chat-input" type="text" placeholder="اكتب رسالة..." style="flex:1;background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:10px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;outline:none" onkeypress="if(event.key==='Enter')sendMessage()">
+        <button onclick="sendMessage()" class="arena-btn" style="padding:10px 14px;border-radius:10px;font-size:13px">📩</button>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="sec-profile" style="display:none" class="animate-slide-up">
+      <div class="glass" style="border-radius:14px;padding:18px;margin-bottom:12px;text-align:center;position:relative">
+        <button onclick="editProfile()" style="position:absolute;top:10px;left:10px;background:#1a2338;border:1px solid #1e2d45;border-radius:8px;padding:4px 9px;font-size:10px;color:#64748b;cursor:pointer;font-family:'Cairo',sans-serif">✏️ تعديل</button>
+        <div id="profile-avatar" style="width:66px;height:66px;background:linear-gradient(135deg,#f5c518,#f97316);border-radius:50%;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#000">A</div>
+        <div id="profile-name" style="font-size:16px;font-weight:700">Ahmed_Player</div>
+        <div id="profile-rank" style="font-size:14px;font-weight:900;margin:4px 0;color:#c9a84c">🥇 Gold</div>
+        <div id="profile-verified" style="display:inline-block;background:rgba(34,197,94,0.15);color:#22c55e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid #22c55e;margin-bottom:8px">✅ موثّق</div>
+        <div id="profile-email" style="color:#64748b;font-size:11px;margin-bottom:9px">ahmed@example.com</div>
+        <div id="profile-whatsapp" style="color:#64748b;font-size:11px"></div>
+      </div>
+      <div id="profile-rank-card" class="glass" style="border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;border:2px solid #c9a84c;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(26,21,0,0.8),rgba(45,32,0,0.8))">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(201,168,76,0.15),transparent 60%)"></div>
+        <span id="profile-rank-icon" style="font-size:42px;margin-bottom:6px;display:block;position:relative;z-index:1">🥇</span>
+        <div id="profile-rank-text" style="font-size:20px;font-weight:900;color:#c9a84c;text-shadow:0 0 20px rgba(201,168,76,0.4);letter-spacing:2px;position:relative;z-index:1">GOLD</div>
+        <div id="profile-rank-progress" style="font-size:11px;color:#64748b;margin-top:4px;position:relative;z-index:1">النقاط: 245 • 55 نقطة للترقية لـ Diamond</div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:4px;height:5px;margin-top:8px;overflow:hidden;position:relative;z-index:1">
+          <div id="profile-rank-bar" style="height:100%;border-radius:4px;background:linear-gradient(90deg,#c9a84c,#f5c518);width:82%"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px">
+        <div class="glass" style="border-radius:12px;padding:13px;text-align:center">
+          <div id="profile-wins" style="font-size:24px;font-weight:900;color:#22c55e;margin-bottom:3px">42</div>
+          <div style="font-size:10px;color:#64748b">فوز</div>
+        </div>
+        <div class="glass" style="border-radius:12px;padding:13px;text-align:center">
+          <div id="profile-losses" style="font-size:24px;font-weight:900;color:#ef4444;margin-bottom:3px">18</div>
+          <div style="font-size:10px;color:#64748b">خسارة</div>
+        </div>
+        <div class="glass" style="border-radius:12px;padding:13px;text-align:center">
+          <div id="profile-points" style="font-size:24px;font-weight:900;color:#f5c518;margin-bottom:3px">245</div>
+          <div style="font-size:10px;color:#64748b">نقاط</div>
+        </div>
+        <div class="glass" style="border-radius:12px;padding:13px;text-align:center">
+          <div id="profile-goals" style="font-size:24px;font-weight:900;color:#3b82f6;margin-bottom:3px">156</div>
+          <div style="font-size:10px;color:#64748b">أهداف</div>
+        </div>
+      </div>
+      <button class="arena-btn" onclick="window.open('https://chat.whatsapp.com/example','_blank')" style="width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700;font-family:'Cairo',sans-serif;margin-bottom:8px">💬 انضم لمجموعة واتساب</button>
+      <button onclick="logout()" style="width:100%;background:none;border:1px solid #ef4444;color:#ef4444;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;padding:11px;border-radius:10px;cursor:pointer">🚪 تسجيل الخروج</button>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="sec-admin" style="display:none" class="animate-slide-up">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#f5c518">👑 لوحة الإدارة</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto" class="hide-scrollbar">
+        <button id="admin-tab-reports" onclick="showAdminTab('reports')" class="arena-btn" style="font-size:11px;padding:7px 12px;border-radius:8px;white-space:nowrap">🚨 البلاغات</button>
+        <button id="admin-tab-tournaments" onclick="showAdminTab('tournaments')" style="font-size:11px;padding:7px 12px;border-radius:8px;white-space:nowrap;background:#1a2338;color:#64748b;border:1px solid #1e2d45;font-family:'Cairo',sans-serif;cursor:pointer">🏆 البطولات</button>
+        <button id="admin-tab-users" onclick="showAdminTab('users')" style="font-size:11px;padding:7px 12px;border-radius:8px;white-space:nowrap;background:#1a2338;color:#64748b;border:1px solid #1e2d45;font-family:'Cairo',sans-serif;cursor:pointer">👥 اللاعبون</button>
+      </div>
+      <div id="admin-content"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Notifications Panel -->
+<div id="notif-panel" style="display:none;position:fixed;inset:0;z-index:150">
+  <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="toggleNotif()"></div>
+  <div style="position:absolute;top:0;right:0;width:280px;max-width:86vw;height:100%;background:#111827;border-left:1px solid #1e2d45;padding:16px 13px;overflow-y:auto;animation:slideUp 0.3s ease">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:13px">
+      <div style="font-size:14px;font-weight:700">🔔 الإشعارات</div>
+      <button onclick="toggleNotif()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b">✕</button>
+    </div>
+    <div id="notif-list"></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal-overlay">
+  <div class="modal-box">
+    <div id="modal-title" style="font-size:14px;font-weight:700;margin-bottom:13px"></div>
+    <div id="modal-body"></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="closeModal()" style="flex:1;background:#1a2338;color:#64748b;font-weight:700;padding:10px;border-radius:10px;border:1px solid #1e2d45;cursor:pointer;font-family:'Cairo',sans-serif">إلغاء</button>
+      <button id="modal-save" onclick="saveModal()" class="arena-btn" style="flex:1;padding:10px;border-radius:10px;font-size:14px;font-weight:700;font-family:'Cairo',sans-serif">حفظ ✅</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// SUPABASE CONFIGURATION - CHANGE THIS!
+// ============================================
+// IMPORTANT: Use YOUR project URL and key!
+// Get from: Supabase → Project Settings → API
+const SUPABASE_URL = 'https://toknimlhdbnucgfslaex.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRva25pbWxoZGJudWNnZnNsYWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNzk3MTcsImV4cCI6MjA5Njc1NTcxN30.Dpyuhbh-aNCyaJRHPS6OnieLlqXMl7zeTWeViP2iLh4';
+const ADMIN_EMAIL = 'rayentkd22@gmail.com';
+
+// Real Supabase Auth client (for Google OAuth)
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================
+// SUPABASE CLIENT (using fetch directly)
+// ============================================
+async function supabaseSelect(table, columns = '*', filters = {}) {
+  let url = `${SUPABASE_URL}/rest/v1/${table}?select=${columns}`;
+  for (const [key, val] of Object.entries(filters)) {
+    url += `&${key}=eq.${encodeURIComponent(val)}`;
+  }
+  const res = await fetch(url, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  return res.json();
+}
+
+async function supabaseInsert(table, data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function supabaseUpdate(table, id, data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function supabaseDelete(table, id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer': 'return=representation'
+    }
+  });
+  return res.json();
+}
+
+async function supabaseRpc(functionName, params) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(params)
+  });
+  return res.json();
+}
+
+// ============================================
+// RANK SYSTEM
+// ============================================
+const RANKS = [
+  {name:'Bronze',icon:'🥉',color:'#cd7f32',min:0,next:100},
+  {name:'Silver',icon:'🥈',color:'#94a3b8',min:100,next:250},
+  {name:'Gold',icon:'🥇',color:'#f5c518',min:250,next:500},
+  {name:'Diamond',icon:'💎',color:'#b9f2ff',min:500,next:800},
+  {name:'Elite',icon:'👑',color:'#a855f7',min:800,next:1200},
+  {name:'Champion',icon:'🏆',color:'#ef4444',min:1200,next:9999}
+];
+
+function getRank(points) {
+  for (let i = RANKS.length - 1; i >= 0; i--) { if (points >= RANKS[i].min) return RANKS[i]; }
+  return RANKS[0];
+}
+
+function getRankProgress(points) {
+  const rank = getRank(points);
+  const nextRank = RANKS.find(r => r.min > rank.min);
+  if (!nextRank) return {percent:100,text:'🏆 Champion MAX!'};
+  const progress = ((points - rank.min) / (nextRank.min - rank.min)) * 100;
+  const needed = nextRank.min - points;
+  return {percent:Math.min(progress, 100),text:`${points} نقطة • ${needed} نقطة للترقية لـ ${nextRank.name}`};
+}
+
+function updateUserRank(user) {
+  const newRank = getRank(user.points);
+  if (newRank.name !== user.rank) {
+    user.rank = newRank.name;
+    addNotification(`تهانينا! تمت ترقيتك إلى ${newRank.icon} ${newRank.name}`, 'rank');
+  }
+  return user;
+}
+
+let currentUser = null, currentTab = 'home', currentChatUser = null, currentTournament = null, currentFriendlyOpponent = null, modalCallback = null;
+
+window.addEventListener('load', async () => {
+  try {
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (session && session.user) {
+      await loadOrCreateUserFromAuth(session.user);
+    } else {
+      const savedUser = localStorage.getItem('efa_currentUser');
+      if (savedUser) currentUser = JSON.parse(savedUser);
+    }
+  } catch (e) { console.error('Auth check error:', e); }
+
+  setTimeout(() => {
+    document.getElementById('loading-screen').classList.add('hidden');
+    if (currentUser) { showApp(); }
+    else { document.getElementById('auth-screen').style.display = 'flex'; }
+  }, 1200);
+
+  // Listen for Google OAuth completing (redirect back to site)
+  sbClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session && session.user) {
+      showToast('🔐 جاري تسجيل الدخول...', false, true);
+      await loadOrCreateUserFromAuth(session.user);
+      showApp();
+      showToast('✅ مرحباً ' + currentUser.name + '!');
+    }
+  });
+});
+
+// Find existing user by email (from Google login) or create a new one
+async function loadOrCreateUserFromAuth(authUser) {
+  const email = (authUser.email || '').toLowerCase();
+  try {
+    const users = await supabaseSelect('users', '*', { email });
+    let user;
+    if (users && users.length > 0) {
+      user = users[0];
+    } else {
+      const rawName = authUser.user_metadata?.full_name || authUser.user_metadata?.name || email.split('@')[0];
+      const name = rawName.replace(/\s+/g, '_');
+      const inserted = await supabaseInsert('users', {
+        name, email, password: '', whatsapp: '', country: '216',
+        points: 0, wins: 0, losses: 0, goals: 0, rank: 'Bronze', verified: false
+      });
+      user = inserted[0];
+    }
+    currentUser = user;
+    localStorage.setItem('efa_currentUser', JSON.stringify(currentUser));
+  } catch (e) {
+    console.error('loadOrCreateUserFromAuth error:', e);
+    showToast('❌ خطأ في تحميل بيانات الحساب', true);
+  }
+}
+
+function showToast(msg, isError, isInfo, isWarn) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' toast-error' : isWarn ? ' toast-warn' : isInfo ? ' toast-info' : ' toast-success');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+function switchTab(tab) {
+  const loginBtn = document.getElementById('tab-login');
+  const regBtn = document.getElementById('tab-register');
+  if (tab === 'login') {
+    loginBtn.style.background = '#f5c518'; loginBtn.style.color = '#000';
+    regBtn.style.background = '#1a2338'; regBtn.style.color = '#64748b';
+    document.getElementById('form-login').style.display = 'block';
+    document.getElementById('form-register').style.display = 'none';
+  } else {
+    loginBtn.style.background = '#1a2338'; loginBtn.style.color = '#64748b';
+    regBtn.style.background = '#f5c518'; regBtn.style.color = '#000';
+    document.getElementById('form-login').style.display = 'none';
+    document.getElementById('form-register').style.display = 'block';
+  }
+}
+
+function togglePass(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+async function loginGoogle() {
+  showToast('🔐 جاري التحويل إلى Google...', false, true);
+  const { error } = await sbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href.split('#')[0].split('?')[0] }
+  });
+  if (error) showToast('❌ خطأ: ' + error.message, true);
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const errDiv = document.getElementById('login-error');
+
+  if (!email || !pass) { errDiv.textContent = '⚠️ أكمل جميع الحقول'; errDiv.style.display = 'block'; return; }
+
+  showToast('🔐 جاري تسجيل الدخول...', false, true);
+
+  try {
+    const users = await supabaseSelect('users', '*', { email: email });
+    const user = users.find(u => u.password === pass);
+
+    if (!user) {
+      errDiv.textContent = '❌ البريد أو كلمة المرور غير صحيحة'; errDiv.style.display = 'block';
+      document.getElementById('login-pass').classList.add('animate-shake');
+      setTimeout(() => document.getElementById('login-pass').classList.remove('animate-shake'), 400);
+      return;
+    }
+
+    errDiv.style.display = 'none';
+    currentUser = user;
+    localStorage.setItem('efa_currentUser', JSON.stringify(currentUser));
+    showApp();
+    showToast('✅ مرحباً ' + user.name + '!');
+  } catch (e) {
+    errDiv.textContent = '❌ خطأ في الاتصال: ' + e.message; errDiv.style.display = 'block';
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const country = document.getElementById('reg-country').value;
+  const whatsapp = document.getElementById('reg-whatsapp').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  const errDiv = document.getElementById('reg-error');
+  const succDiv = document.getElementById('reg-success');
+
+  if (!name || !email || !pass || !whatsapp) { errDiv.textContent = '⚠️ أكمل جميع الحقول'; errDiv.style.display = 'block'; succDiv.style.display = 'none'; return; }
+  if (pass !== pass2) { errDiv.textContent = '⚠️ كلمة المرور غير متطابقة'; errDiv.style.display = 'block'; succDiv.style.display = 'none'; return; }
+  if (pass.length < 6) { errDiv.textContent = '⚠️ كلمة المرور قصيرة (6 أحرف على الأقل)'; errDiv.style.display = 'block'; succDiv.style.display = 'none'; return; }
+  if (!email.includes('@') || !email.includes('.')) { errDiv.textContent = '⚠️ أدخل بريد إلكتروني صحيح'; errDiv.style.display = 'block'; succDiv.style.display = 'none'; return; }
+
+  try {
+    const existing = await supabaseSelect('users', 'id', { email: email });
+    if (existing.length > 0) { errDiv.textContent = '❌ هذا البريد مستخدم بالفعل'; errDiv.style.display = 'block'; succDiv.style.display = 'none'; return; }
+
+    const existingName = await supabaseSelect('users', 'id', { name: name });
+    if (existingName.length > 0) { errDiv.textContent = '❌ هذا الاسم مستخدم بالفعل'; errDiv.style.display = 'block'; succDiv.style.display = 'none'; return; }
+
+    errDiv.style.display = 'none'; succDiv.textContent = '✅ جاري إنشاء الحساب...'; succDiv.style.display = 'block';
+
+    const newUser = await supabaseInsert('users', {
+      name, email, password: pass, whatsapp: '+' + country + whatsapp, country,
+      points: 0, wins: 0, losses: 0, goals: 0, rank: 'Bronze', verified: false
+    });
+
+    currentUser = newUser[0];
+    localStorage.setItem('efa_currentUser', JSON.stringify(currentUser));
+    showApp();
+    showToast('✅ تم إنشاء الحساب!');
+  } catch (e) {
+    errDiv.textContent = '❌ خطأ: ' + e.message; errDiv.style.display = 'block'; succDiv.style.display = 'none';
+  }
+}
+
+async function logout() {
+  try { await sbClient.auth.signOut(); } catch (e) {}
+  currentUser = null; localStorage.removeItem('efa_currentUser');
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  showToast('🚪 تم تسجيل الخروج');
+}
+
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  updateUI(); showTab('home'); updateCountdown(); renderTournaments(); renderLeaderboard(); renderMessages(); renderNotifications(); renderFriendlyPlayers();
+}
+
+function updateUI() {
+  if (!currentUser) return;
+  document.getElementById('user-avatar').textContent = currentUser.name[0].toUpperCase();
+  document.getElementById('header-pts').textContent = '🏅 ' + currentUser.points + ' pts';
+  const adminBtn = document.getElementById('tab-btn-admin');
+  if (adminBtn) adminBtn.style.display = (currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL) ? 'block' : 'none';
+}
+
+function showTab(name) {
+  ['home','tournaments','tournament-detail','friendly','friendly-match','leaderboard','messages','chat','profile','admin'].forEach(t => {
+    const sec = document.getElementById('sec-' + t);
+    const btn = document.getElementById('tab-btn-' + t);
+    if (sec) sec.style.display = 'none';
+    if (btn) { btn.className = 'tab-inactive'; btn.style.color = '#64748b'; btn.style.borderBottomColor = 'transparent'; }
+  });
+  const selectedSec = document.getElementById('sec-' + name);
+  const selectedBtn = document.getElementById('tab-btn-' + name);
+  if (selectedSec) selectedSec.style.display = 'block';
+  if (selectedBtn) { selectedBtn.className = 'tab-active'; selectedBtn.style.color = '#f5c518'; selectedBtn.style.borderBottomColor = '#f5c518'; }
+  currentTab = name;
+  if (name === 'tournaments') renderTournaments();
+  if (name === 'leaderboard') renderLeaderboard();
+  if (name === 'messages') renderMessages();
+  if (name === 'friendly') renderFriendlyPlayers();
+  if (name === 'profile') updateProfile();
+  if (name === 'admin') showAdminTab('reports');
+}
+
+function updateProfile() {
+  if (!currentUser) return;
+  const rank = getRank(currentUser.points);
+  const progress = getRankProgress(currentUser.points);
+  document.getElementById('profile-avatar').textContent = currentUser.name[0].toUpperCase();
+  document.getElementById('profile-name').textContent = currentUser.name;
+  document.getElementById('profile-rank').textContent = rank.icon + ' ' + rank.name;
+  document.getElementById('profile-rank').style.color = rank.color;
+  document.getElementById('profile-verified').textContent = currentUser.verified ? '✅ موثّق' : '⏳ غير موثّق';
+  document.getElementById('profile-verified').style.color = currentUser.verified ? '#22c55e' : '#64748b';
+  document.getElementById('profile-verified').style.borderColor = currentUser.verified ? '#22c55e' : '#64748b';
+  document.getElementById('profile-email').textContent = currentUser.email;
+  document.getElementById('profile-whatsapp').textContent = currentUser.whatsapp ? '📱 ' + currentUser.whatsapp : '';
+  document.getElementById('profile-wins').textContent = currentUser.wins;
+  document.getElementById('profile-losses').textContent = currentUser.losses;
+  document.getElementById('profile-points').textContent = currentUser.points;
+  document.getElementById('profile-goals').textContent = currentUser.goals;
+  document.getElementById('profile-rank-icon').textContent = rank.icon;
+  document.getElementById('profile-rank-text').textContent = rank.name.toUpperCase();
+  document.getElementById('profile-rank-text').style.color = rank.color;
+  document.getElementById('profile-rank-progress').textContent = progress.text;
+  document.getElementById('profile-rank-bar').style.width = progress.percent + '%';
+  document.getElementById('profile-rank-bar').style.background = 'linear-gradient(90deg,' + rank.color + ',#f5c518)';
+  document.getElementById('profile-rank-card').style.borderColor = rank.color;
+}
+
+function editProfile() {
+  openModal('✏️ تعديل البروفايل', `
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">اسم اللاعب</label>
+      <input id="edit-name" type="text" value="${currentUser.name}" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">رقم واتساب</label>
+      <input id="edit-whatsapp" type="text" value="${currentUser.whatsapp || ''}" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+    </div>
+  `);
+  modalCallback = async () => {
+    const newName = document.getElementById('edit-name').value.trim();
+    const newWhatsapp = document.getElementById('edit-whatsapp').value.trim();
+    if (!newName) { showToast('⚠️ الاسم مطلوب', true); return false; }
+    try {
+      await supabaseUpdate('users', currentUser.id, { name: newName, whatsapp: newWhatsapp });
+      currentUser.name = newName; currentUser.whatsapp = newWhatsapp;
+      localStorage.setItem('efa_currentUser', JSON.stringify(currentUser));
+      updateProfile(); updateUI(); showToast('✅ تم التحديث!'); return true;
+    } catch (e) { showToast('❌ خطأ: ' + e.message, true); return false; }
+  };
+}
+
+// ============================================
+// COUNTDOWN
+// ============================================
+let cdTarget = null;
+function updateCountdown() {
+  const tournaments = []; // Will be populated from Supabase
+  const upcoming = tournaments.find(t => t.status === 'open' || t.status === 'soon');
+  const countdownEl = document.getElementById('home-countdown');
+  if (!upcoming) { countdownEl.style.display = 'none'; return; }
+  countdownEl.style.display = 'block';
+  document.getElementById('home-countdown-title').textContent = '🏆 ' + upcoming.name;
+  cdTarget = new Date(upcoming.start_date);
+  const diff = cdTarget - new Date();
+  if (diff <= 0) return;
+  const days = document.getElementById('cd-days');
+  const hours = document.getElementById('cd-hours');
+  const mins = document.getElementById('cd-mins');
+  const secs = document.getElementById('cd-secs');
+  if (days) days.textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
+  if (hours) hours.textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+  if (mins) mins.textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+  if (secs) secs.textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+}
+setInterval(updateCountdown, 1000);
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+function addNotification(text, type) {
+  const notifs = JSON.parse(localStorage.getItem('efa_notifications') || '[]');
+  notifs.unshift({id:'n'+Date.now(),text,time:new Date().toISOString(),read:false,type});
+  localStorage.setItem('efa_notifications', JSON.stringify(notifs));
+  renderNotifications();
+}
+
+function renderNotifications() {
+  const notifs = JSON.parse(localStorage.getItem('efa_notifications') || '[]');
+  const unread = notifs.filter(n => !n.read).length;
+  const badge = document.getElementById('notif-badge');
+  if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'flex' : 'none'; }
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  list.innerHTML = notifs.map(n => {
+    const time = new Date(n.time);
+    const diff = Math.floor((Date.now() - time) / 60000);
+    const timeText = diff < 1 ? 'الآن' : diff < 60 ? diff + ' دقيقة' : diff < 1440 ? Math.floor(diff/60) + ' ساعة' : Math.floor(diff/1440) + ' يوم';
+    const borderColor = n.type === 'tournament' ? '#f5c518' : n.type === 'challenge' ? '#ef4444' : n.type === 'rank' ? '#22c55e' : '#3b82f6';
+    const icon = n.type === 'tournament' ? '🏆' : n.type === 'challenge' ? '⚔️' : n.type === 'rank' ? '🎖️' : '🔔';
+    return `<div style="background:#151d2e;border:1px solid #1e2d45;border-radius:10px;padding:10px;margin-bottom:7px;display:flex;gap:9px;border-right:3px solid ${borderColor};${n.read ? 'opacity:0.7' : ''}">
+      <span style="font-size:18px;flex-shrink:0">${icon}</span>
+      <div style="flex:1"><div style="font-size:11px;line-height:1.5">${n.text}</div><div style="font-size:9px;color:#64748b;margin-top:2px">${timeText}</div></div>
+      ${!n.read ? '<span style="width:8px;height:8px;background:#f5c518;border-radius:50%;flex-shrink:0;margin-top:4px"></span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleNotif() {
+  const panel = document.getElementById('notif-panel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    const notifs = JSON.parse(localStorage.getItem('efa_notifications') || '[]');
+    notifs.forEach(n => n.read = true);
+    localStorage.setItem('efa_notifications', JSON.stringify(notifs));
+    renderNotifications();
+  }
+}
+
+// ============================================
+// MODAL
+// ============================================
+function openModal(title, body) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  modalCallback = null;
+}
+
+function saveModal() {
+  if (modalCallback && modalCallback()) closeModal();
+  else if (!modalCallback) closeModal();
+}
+
+// ============================================
+// TOURNAMENTS
+// ============================================
+async function renderTournaments() {
+  const list = document.getElementById('tournaments-list');
+  if (!list) return;
+  try {
+    const tournaments = await supabaseSelect('tournaments', '*');
+    list.innerHTML = tournaments.map(t => {
+      const statusClass = t.status === 'open' ? 'status-open' : t.status === 'live' ? 'status-live' : t.status === 'soon' ? 'status-soon' : 'status-finished';
+      const statusText = t.status === 'open' ? 'التسجيل مفتوح' : t.status === 'live' ? 'جارية ⏱' : t.status === 'soon' ? 'قريباً' : 'منتهية';
+      const progress = Math.min((t.players.length / t.max_players) * 100, 100);
+      const isRegistered = currentUser && t.players.includes(currentUser.id);
+      return `<div class="glass" style="border-radius:14px;padding:13px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9px">
+          <div>
+            <div style="font-size:15px;font-weight:700">${t.name}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px">📱 ${t.players.length}/${t.max_players} لاعب</div>
+          </div>
+          <span class="${statusClass}" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px">${statusText}</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:4px;height:5px;margin-bottom:9px;overflow:hidden">
+          <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#f5c518,#f97316);width:${progress}%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <button onclick="viewTournament('${t.id}')" style="font-size:11px;cursor:pointer;background:none;border:none;font-family:'Cairo',sans-serif;color:#64748b">› التفاصيل</button>
+          ${t.status === 'open' && !isRegistered ? `<button onclick="joinTournament('${t.id}')" class="arena-btn" style="font-size:12px;padding:7px 14px;border-radius:8px">سجّل</button>` : ''}
+          ${isRegistered ? '<span style="font-size:11px;color:#22c55e;font-weight:700">✅ مسجل</span>' : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) { list.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ في تحميل البطولات</div>'; }
+}
+
+async function viewTournament(tid) {
+  try {
+    const tournaments = await supabaseSelect('tournaments', '*', { id: tid });
+    const t = tournaments[0];
+    if (!t) return;
+    currentTournament = t;
+    showTab('tournament-detail');
+    const content = document.getElementById('tournament-detail-content');
+    const statusClass = t.status === 'open' ? 'status-open' : t.status === 'live' ? 'status-live' : t.status === 'soon' ? 'status-soon' : 'status-finished';
+    const statusText = t.status === 'open' ? 'التسجيل مفتوح' : t.status === 'live' ? 'جارية ⏱' : t.status === 'soon' ? 'قريباً' : 'منتهية';
+    const isRegistered = currentUser && t.players.includes(currentUser.id);
+
+    content.innerHTML = `
+      <div class="glass" style="border-radius:14px;padding:16px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <div>
+            <div style="font-size:18px;font-weight:900">${t.name}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:4px">${t.description}</div>
+          </div>
+          <span class="${statusClass}" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px">${statusText}</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:4px;height:6px;margin-bottom:12px;overflow:hidden">
+          <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#f5c518,#f97316);width:${Math.min((t.players.length/t.max_players)*100,100)}%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px">
+          <span style="color:#64748b">👥 ${t.players.length}/${t.max_players} لاعب</span>
+          <span style="color:#64748b">📅 ${new Date(t.start_date).toLocaleDateString('ar')}</span>
+        </div>
+        ${t.status === 'open' && !isRegistered ? `<button onclick="joinTournament('${t.id}')" class="arena-btn" style="width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700">سجّل في البطولة ✅</button>` : ''}
+        ${isRegistered ? '<div style="text-align:center;color:#22c55e;font-weight:700;padding:10px">✅ أنت مسجل في هذه البطولة</div>' : ''}
+      </div>
+    `;
+  } catch (e) { showToast('❌ خطأ في تحميل التفاصيل', true); }
+}
+
+async function joinTournament(tid) {
+  if (!currentUser) { showToast('❌ سجّل الدخول أولاً', true); return; }
+  try {
+    const tournaments = await supabaseSelect('tournaments', '*', { id: tid });
+    const t = tournaments[0];
+    if (!t) return;
+    if (t.players.includes(currentUser.id)) { showToast('⚠️ أنت مسجل بالفعل', true); return; }
+    if (t.players.length >= t.max_players) { showToast('❌ البطولة ممتلئة', true); return; }
+    const newPlayers = [...t.players, currentUser.id];
+    await supabaseUpdate('tournaments', tid, { players: newPlayers });
+    showToast('✅ تم التسجيل في البطولة!');
+    renderTournaments();
+    if (currentTournament && currentTournament.id === tid) viewTournament(tid);
+  } catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+function openCreateTournament() {
+  if (!currentUser) { showToast('❌ سجّل الدخول أولاً', true); return; }
+  openModal('+ إنشاء بطولة جديدة', `
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">اسم البطولة</label>
+      <input id="new-tour-name" type="text" placeholder="بطولة الصيف" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">الوصف</label>
+      <input id="new-tour-desc" type="text" placeholder="بطولة 16 لاعب" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">عدد اللاعبين</label>
+      <select id="new-tour-max" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+        <option value="8">8 لاعبين</option>
+        <option value="16">16 لاعب</option>
+        <option value="32">32 لاعب</option>
+      </select>
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">تاريخ البدء</label>
+      <input id="new-tour-date" type="datetime-local" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+    </div>
+  `);
+  modalCallback = async () => {
+    const name = document.getElementById('new-tour-name').value.trim();
+    const desc = document.getElementById('new-tour-desc').value.trim();
+    const max = parseInt(document.getElementById('new-tour-max').value);
+    const dateVal = document.getElementById('new-tour-date').value;
+    if (!name || !dateVal) { showToast('⚠️ أكمل جميع الحقول', true); return false; }
+    try {
+      await supabaseInsert('tournaments', {
+        name, description: desc || name, max_players: max, start_date: new Date(dateVal).toISOString(),
+        players: [currentUser.id], status: 'open', created_by: currentUser.id
+      });
+      showToast('✅ تم إنشاء البطولة!'); renderTournaments(); return true;
+    } catch (e) { showToast('❌ خطأ: ' + e.message, true); return false; }
+  };
+}
+
+// ============================================
+// FRIENDLY MATCH
+// ============================================
+async function renderFriendlyPlayers() {
+  const list = document.getElementById('friendly-players-list');
+  if (!list) return;
+  try {
+    const users = await supabaseSelect('users', '*');
+    const others = users.filter(u => u.id !== currentUser?.id);
+    list.innerHTML = others.map(u => {
+      const rank = getRank(u.points);
+      return `<div class="glass card-hover" style="border-radius:14px;padding:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700;font-size:13px">${u.name} ${u.verified ? '<span class="badge-verified">✅</span>' : ''}</div>
+          <div style="font-size:10px;color:${rank.color}">${rank.icon} ${rank.name} • ${u.points} pts</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <a href="https://wa.me/${(u.whatsapp || '').replace('+','')}?text=مرحباً%20من%20eFootball%20Arena" target="_blank" class="arena-btn" style="background:linear-gradient(135deg,#128c7e,#25d366);text-decoration:none;display:flex;align-items:center;font-size:11px;padding:5px 10px;border-radius:8px">📱 واتساب</a>
+          <button onclick="openFriendlyMatch('${u.id}')" class="arena-btn" style="font-size:11px;padding:5px 10px;border-radius:8px">⚽ تحدي</button>
+          <button onclick="openChat('${u.id}')" class="arena-btn" style="font-size:11px;padding:5px 10px;border-radius:8px">💬</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) { list.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ في تحميل اللاعبين</div>'; }
+}
+
+async function filterPlayers(search) {
+  const list = document.getElementById('friendly-players-list');
+  if (!list) return;
+  try {
+    const users = await supabaseSelect('users', '*');
+    const term = search.toLowerCase();
+    const others = users.filter(u => u.id !== currentUser?.id && u.name.toLowerCase().includes(term));
+    list.innerHTML = others.map(u => {
+      const rank = getRank(u.points);
+      return `<div class="glass card-hover" style="border-radius:14px;padding:13px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700;font-size:13px">${u.name} ${u.verified ? '<span class="badge-verified">✅</span>' : ''}</div>
+          <div style="font-size:10px;color:${rank.color}">${rank.icon} ${rank.name} • ${u.points} pts</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <a href="https://wa.me/${(u.whatsapp || '').replace('+','')}?text=مرحباً%20من%20eFootball%20Arena" target="_blank" class="arena-btn" style="background:linear-gradient(135deg,#128c7e,#25d366);text-decoration:none;display:flex;align-items:center;font-size:11px;padding:5px 10px;border-radius:8px">📱 واتساب</a>
+          <button onclick="openFriendlyMatch('${u.id}')" class="arena-btn" style="font-size:11px;padding:5px 10px;border-radius:8px">⚽ تحدي</button>
+          <button onclick="openChat('${u.id}')" class="arena-btn" style="font-size:11px;padding:5px 10px;border-radius:8px">💬</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) { list.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ</div>'; }
+}
+
+async function openFriendlyMatch(uid) {
+  try {
+    const users = await supabaseSelect('users', '*', { id: uid });
+    const opponent = users[0];
+    if (!opponent) return;
+    currentFriendlyOpponent = opponent;
+    showTab('friendly-match');
+    const content = document.getElementById('friendly-match-content');
+    content.innerHTML = `
+      <div class="glass" style="border-radius:14px;padding:18px;margin-bottom:12px;text-align:center">
+        <div style="display:flex;justify-content:center;align-items:center;gap:20px;margin-bottom:16px">
+          <div style="text-align:center">
+            <div style="width:50px;height:50px;background:linear-gradient(135deg,#f5c518,#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#000;margin:0 auto 6px">${currentUser.name[0]}</div>
+            <div style="font-size:12px;font-weight:700">${currentUser.name}</div>
+            <div style="font-size:10px;color:#64748b">${getRank(currentUser.points).icon} ${getRank(currentUser.points).name}</div>
+          </div>
+          <div style="font-size:24px;font-weight:900;color:#f5c518">VS</div>
+          <div style="text-align:center">
+            <div style="width:50px;height:50px;background:linear-gradient(135deg,#7c3aed,#3b82f6);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 6px">${opponent.name[0]}</div>
+            <div style="font-size:12px;font-weight:700">${opponent.name}</div>
+            <div style="font-size:10px;color:#64748b">${getRank(opponent.points).icon} ${getRank(opponent.points).name}</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#64748b;margin-bottom:12px">أدخل نتيجة المباراة:</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px">
+          <div style="text-align:center">
+            <div style="font-size:11px;color:#64748b;margin-bottom:4px">${currentUser.name}</div>
+            <input id="match-score-me" type="number" min="0" max="20" value="0" style="width:60px;background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:10px;font-family:'Cairo',sans-serif;font-size:18px;font-weight:900;color:#e2e8f0;text-align:center">
+          </div>
+          <div style="font-size:20px;font-weight:900;color:#64748b;align-self:flex-end;padding-bottom:10px">:</div>
+          <div style="text-align:center">
+            <div style="font-size:11px;color:#64748b;margin-bottom:4px">${opponent.name}</div>
+            <input id="match-score-opponent" type="number" min="0" max="20" value="0" style="width:60px;background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:10px;font-family:'Cairo',sans-serif;font-size:18px;font-weight:900;color:#e2e8f0;text-align:center">
+          </div>
+        </div>
+        <button onclick="submitMatchResult('${uid}')" class="arena-btn" style="width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700">تأكيد النتيجة ✅</button>
+      </div>
+    `;
+  } catch (e) { showToast('❌ خطأ', true); }
+}
+
+async function submitMatchResult(opponentId) {
+  const myScore = parseInt(document.getElementById('match-score-me').value) || 0;
+  const oppScore = parseInt(document.getElementById('match-score-opponent').value) || 0;
+
+  try {
+    const users = await supabaseSelect('users', '*');
+    const me = users.find(u => u.id === currentUser.id);
+    const opp = users.find(u => u.id === opponentId);
+    if (!me || !opp) return;
+
+    let mePoints = me.points, oppPoints = opp.points;
+    let meWins = me.wins, oppWins = opp.wins;
+    let meLosses = me.losses, oppLosses = opp.losses;
+
+    if (myScore > oppScore) { meWins++; mePoints += 10; oppLosses++; oppPoints = Math.max(0, oppPoints - 5); showToast('🎉 فوز! +10 نقاط'); }
+    else if (oppScore > myScore) { oppWins++; oppPoints += 10; meLosses++; mePoints = Math.max(0, mePoints - 5); showToast('😢 خسارة! -5 نقاط'); }
+    else { mePoints += 3; oppPoints += 3; showToast('🤝 تعادل! +3 نقاط'); }
+
+    await supabaseUpdate('users', me.id, { points: mePoints, wins: meWins, losses: meLosses, goals: me.goals + myScore });
+    await supabaseUpdate('users', opp.id, { points: oppPoints, wins: oppWins, losses: oppLosses, goals: opp.goals + oppScore });
+
+    await supabaseInsert('matches', { p1_id: currentUser.id, p2_id: opponentId, p1_score: myScore, p2_score: oppScore, type: 'friendly' });
+
+    currentUser = { ...currentUser, points: mePoints, wins: meWins, losses: meLosses, goals: me.goals + myScore };
+    localStorage.setItem('efa_currentUser', JSON.stringify(currentUser));
+
+    updateUI(); updateProfile(); renderLeaderboard(); renderFriendlyPlayers();
+    showTab('friendly');
+  } catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+// ============================================
+// LEADERBOARD
+// ============================================
+async function renderLeaderboard() {
+  const list = document.getElementById('leaderboard-list');
+  if (!list) return;
+  try {
+    const users = await supabaseSelect('users', '*');
+    const sorted = [...users].sort((a, b) => b.points - a.points);
+    list.innerHTML = sorted.slice(0, 20).map((u, i) => {
+      const rank = getRank(u.points);
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+      return `<div style="display:grid;grid-template-columns:28px 1fr 60px 34px 34px 44px;gap:4px;padding:9px 12px;border-bottom:1px solid #1e2d45;font-size:11px;align-items:center;${i < 3 ? 'background:rgba(245,197,24,0.05)' : ''}">
+        <span style="font-weight:700;color:${i < 3 ? '#f5c518' : '#64748b'}">${medal}</span>
+        <div style="display:flex;align-items:center;gap:5px;min-width:0">
+          <div style="width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#7c3aed,#3b82f6)">${u.name[0]}</div>
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.name} ${u.verified ? '<span class="badge-verified">✅</span>' : ''}</span>
+        </div>
+        <span style="font-size:10px;color:${rank.color}">${rank.icon} ${rank.name}</span>
+        <span style="text-align:center;color:#22c55e">${u.wins}</span>
+        <span style="text-align:center;color:#ef4444">${u.losses}</span>
+        <span style="font-weight:700;color:#f5c518">${u.points}</span>
+      </div>`;
+    }).join('');
+  } catch (e) { list.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ</div>'; }
+}
+
+// ============================================
+// MESSAGES & CHAT
+// ============================================
+async function renderMessages() {
+  const list = document.getElementById('messages-list');
+  if (!list || !currentUser) return;
+  try {
+    const allMsgs = await supabaseSelect('messages', '*');
+    const users = await supabaseSelect('users', '*');
+
+    const myMsgs = allMsgs.filter(m => m.sender_id === currentUser.id || m.receiver_id === currentUser.id);
+    const conversations = {};
+    myMsgs.forEach(m => {
+      const otherId = m.sender_id === currentUser.id ? m.receiver_id : m.sender_id;
+      if (!conversations[otherId]) conversations[otherId] = [];
+      conversations[otherId].push(m);
+    });
+
+    list.innerHTML = Object.entries(conversations).map(([otherId, msgs]) => {
+      const other = users.find(u => u.id === otherId);
+      if (!other) return '';
+      const lastMsg = msgs.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))[msgs.length - 1];
+      const unread = msgs.filter(m => m.receiver_id === currentUser.id && !m.read).length;
+      const time = new Date(lastMsg.created_at);
+      const diff = Math.floor((Date.now() - time) / 60000);
+      const timeText = diff < 1 ? 'الآن' : diff < 60 ? diff + ' د' : diff < 1440 ? Math.floor(diff/60) + ' س' : Math.floor(diff/1440) + ' ي';
+      return `<div class="glass card-hover" style="border-radius:12px;padding:11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;cursor:pointer;border-right:3px solid ${unread > 0 ? '#f5c518' : '#1e2d45'}" onclick="openChat('${otherId}')">
+        <div style="position:relative;flex-shrink:0">
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,#7c3aed,#3b82f6)">${other.name[0]}</div>
+          <div style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid #151d2e"></div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;margin-bottom:2px">${other.name} ${other.verified ? '<span class="badge-verified">✅</span>' : ''}</div>
+          <div style="font-size:11px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${lastMsg.text}</div>
+        </div>
+        <div style="text-align:left;flex-shrink:0">
+          <div style="font-size:10px;color:#64748b;margin-bottom:3px">${timeText}</div>
+          ${unread > 0 ? `<div style="background:#f5c518;color:#000;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:auto">${unread}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    if (Object.keys(conversations).length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:#64748b;padding:30px;font-size:13px">لا توجد محادثات<br>ابدأ محادثة جديدة 👇</div>';
+    }
+  } catch (e) { list.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ</div>'; }
+}
+
+async function openNewMessage() {
+  try {
+    const users = await supabaseSelect('users', '*');
+    const others = users.filter(u => u.id !== currentUser?.id);
+    openModal('💬 رسالة جديدة', `
+      <div style="max-height:300px;overflow-y:auto">
+        ${others.map(u => `<div onclick="selectNewChat('${u.id}')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;margin-bottom:6px;background:#1a2338;border:1px solid #1e2d45">
+          <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,#7c3aed,#3b82f6)">${u.name[0]}</div>
+          <div><div style="font-size:13px;font-weight:700">${u.name}</div><div style="font-size:10px;color:#64748b">${getRank(u.points).icon} ${getRank(u.points).name}</div></div>
+        </div>`).join('')}
+      </div>
+    `);
+    modalCallback = () => false;
+  } catch (e) { showToast('❌ خطأ', true); }
+}
+
+function selectNewChat(uid) {
+  closeModal();
+  openChat(uid);
+}
+
+async function openChat(uid) {
+  try {
+    const users = await supabaseSelect('users', '*', { id: uid });
+    const other = users[0];
+    if (!other) return;
+    currentChatUser = other;
+    showTab('chat');
+    document.getElementById('chat-avatar').textContent = other.name[0];
+    document.getElementById('chat-name').textContent = other.name;
+    renderChatMessages();
+
+    // Mark as read
+    const allMsgs = await supabaseSelect('messages', '*');
+    const myMsgs = allMsgs.filter(m => m.sender_id === uid && m.receiver_id === currentUser.id && !m.read);
+    for (const m of myMsgs) {
+      await supabaseUpdate('messages', m.id, { read: true });
+    }
+    renderMessages();
+  } catch (e) { showToast('❌ خطأ', true); }
+}
+
+async function renderChatMessages() {
+  if (!currentChatUser || !currentUser) return;
+  try {
+    const allMsgs = await supabaseSelect('messages', '*');
+    const conv = allMsgs.filter(m => 
+      (m.sender_id === currentUser.id && m.receiver_id === currentChatUser.id) ||
+      (m.sender_id === currentChatUser.id && m.receiver_id === currentUser.id)
+    ).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    const container = document.getElementById('chat-messages');
+    if (!container) return;
+
+    container.innerHTML = conv.map(m => {
+      const isMe = m.sender_id === currentUser.id;
+      const time = new Date(m.created_at);
+      const timeStr = time.getHours().toString().padStart(2,'0') + ':' + time.getMinutes().toString().padStart(2,'0');
+      return `<div style="display:flex;justify-content:${isMe ? 'flex-end' : 'flex-start'};margin-bottom:8px">
+        <div class="${isMe ? 'msg-bubble-me' : 'msg-bubble-other'}">
+          <div>${m.text}</div>
+          <div style="font-size:9px;opacity:0.7;text-align:${isMe ? 'left' : 'right'};margin-top:3px">${timeStr}</div>
+        </div>
+      </div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+  } catch (e) { console.error(e); }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || !currentChatUser || !currentUser) return;
+
+  try {
+    await supabaseInsert('messages', {
+      sender_id: currentUser.id, receiver_id: currentChatUser.id, text, read: false
+    });
+    input.value = '';
+    renderChatMessages();
+    renderMessages();
+  } catch (e) { showToast('❌ خطأ في إرسال الرسالة', true); }
+}
+
+// ============================================
+// REPORTS (بلاغات)
+// ============================================
+async function openReportModal() {
+  if (!currentUser) { showToast('❌ سجّل الدخول أولاً', true); return; }
+  try {
+    const users = await supabaseSelect('users', '*');
+    const others = users.filter(u => u.id !== currentUser.id);
+    openModal('🚨 بلاغ مباراة', `
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">اللاعب المعني (اختياري)</label>
+        <select id="report-user" style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%">
+          <option value="">— بدون تحديد —</option>
+          ${others.map(u => `<option value="${u.id}">${u.name}</option>`).join('')}
+        </select>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:5px">تفاصيل البلاغ</label>
+        <textarea id="report-text" rows="4" placeholder="اشرح المشكلة بالتفصيل..." style="background:#1a2338;border:1px solid #1e2d45;border-radius:10px;padding:11px 14px;font-family:'Cairo',sans-serif;font-size:13px;color:#e2e8f0;width:100%;resize:vertical"></textarea>
+      </div>
+    `);
+    modalCallback = async () => {
+      const text = document.getElementById('report-text').value.trim();
+      const against = document.getElementById('report-user').value || null;
+      if (!text) { showToast('⚠️ اكتب تفاصيل البلاغ', true); return false; }
+      try {
+        await supabaseInsert('reports', {
+          reporter_id: currentUser.id, against_id: against, text, status: 'pending'
+        });
+        showToast('✅ تم إرسال البلاغ للإدارة');
+        return true;
+      } catch (e) { showToast('❌ خطأ: ' + e.message, true); return false; }
+    };
+  } catch (e) { showToast('❌ خطأ', true); }
+}
+
+// ============================================
+// ADMIN PANEL
+// ============================================
+function isAdmin() {
+  return currentUser && currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL;
+}
+
+function showAdminTab(tab) {
+  if (!isAdmin()) { showToast('❌ غير مسموح', true); return; }
+  ['reports','tournaments','users'].forEach(t => {
+    const btn = document.getElementById('admin-tab-' + t);
+    if (!btn) return;
+    if (t === tab) { btn.className = 'arena-btn'; btn.style.background = ''; btn.style.color = ''; btn.style.border = 'none'; }
+    else { btn.className = ''; btn.style.background = '#1a2338'; btn.style.color = '#64748b'; btn.style.border = '1px solid #1e2d45'; }
+  });
+  if (tab === 'reports') renderAdminReports();
+  if (tab === 'tournaments') renderAdminTournaments();
+  if (tab === 'users') renderAdminUsers();
+}
+
+async function renderAdminReports() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⏳ تحميل...</div>';
+  try {
+    const reports = await supabaseSelect('reports', '*');
+    const users = await supabaseSelect('users', '*');
+    const getName = (id) => users.find(u => u.id === id)?.name || '—';
+    const sorted = [...reports].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    if (sorted.length === 0) { el.innerHTML = '<div style="text-align:center;color:#64748b;padding:30px">لا توجد بلاغات 👍</div>'; return; }
+    el.innerHTML = sorted.map(r => `
+      <div class="glass" style="border-radius:12px;padding:12px;margin-bottom:9px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:11px;font-weight:700;color:#f5c518">من: ${getName(r.reporter_id)}</span>
+          <span class="${r.status === 'pending' ? 'status-soon' : 'status-finished'}" style="font-size:10px;padding:3px 8px;border-radius:20px">${r.status === 'pending' ? '⏳ قيد المراجعة' : '✅ تمت المعالجة'}</span>
+        </div>
+        ${r.against_id ? `<div style="font-size:11px;color:#64748b;margin-bottom:6px">بخصوص: ${getName(r.against_id)}</div>` : ''}
+        <div style="font-size:12px;margin-bottom:9px;line-height:1.6">${r.text}</div>
+        <div style="display:flex;gap:6px">
+          ${r.status === 'pending' ? `<button onclick="resolveReport('${r.id}')" class="arena-btn" style="font-size:11px;padding:6px 12px;border-radius:8px">✅ تمت المعالجة</button>` : ''}
+          <button onclick="deleteReport('${r.id}')" style="font-size:11px;padding:6px 12px;border-radius:8px;background:none;border:1px solid #ef4444;color:#ef4444;cursor:pointer;font-family:'Cairo',sans-serif">🗑️ حذف</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) { el.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ: ' + e.message + '</div>'; }
+}
+
+async function resolveReport(id) {
+  try { await supabaseUpdate('reports', id, { status: 'resolved' }); showToast('✅ تم'); renderAdminReports(); }
+  catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+async function deleteReport(id) {
+  try { await supabaseDelete('reports', id); showToast('🗑️ تم الحذف'); renderAdminReports(); }
+  catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+async function renderAdminTournaments() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⏳ تحميل...</div>';
+  try {
+    const tournaments = await supabaseSelect('tournaments', '*');
+    el.innerHTML = `<button onclick="openCreateTournament()" class="arena-btn" style="width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:12px">+ بطولة جديدة</button>` +
+      (tournaments.length === 0 ? '<div style="text-align:center;color:#64748b;padding:20px">لا توجد بطولات</div>' :
+      tournaments.map(t => `
+        <div class="glass" style="border-radius:12px;padding:12px;margin-bottom:9px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px">${t.name}</div>
+          <div style="font-size:11px;color:#64748b;margin-bottom:9px">👥 ${t.players.length}/${t.max_players} لاعب</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <select onchange="changeTournamentStatus('${t.id}', this.value)" style="background:#1a2338;border:1px solid #1e2d45;border-radius:8px;padding:6px;font-family:'Cairo',sans-serif;font-size:11px;color:#e2e8f0">
+              <option value="open" ${t.status==='open'?'selected':''}>التسجيل مفتوح</option>
+              <option value="soon" ${t.status==='soon'?'selected':''}>قريباً</option>
+              <option value="live" ${t.status==='live'?'selected':''}>جارية</option>
+              <option value="finished" ${t.status==='finished'?'selected':''}>منتهية</option>
+              <option value="closed" ${t.status==='closed'?'selected':''}>مغلقة</option>
+            </select>
+            <button onclick="deleteTournament('${t.id}')" style="font-size:11px;padding:6px 12px;border-radius:8px;background:none;border:1px solid #ef4444;color:#ef4444;cursor:pointer;font-family:'Cairo',sans-serif">🗑️ حذف</button>
+          </div>
+        </div>
+      `).join(''));
+  } catch (e) { el.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ: ' + e.message + '</div>'; }
+}
+
+async function changeTournamentStatus(id, status) {
+  try { await supabaseUpdate('tournaments', id, { status }); showToast('✅ تم التحديث'); renderAdminTournaments(); }
+  catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+async function deleteTournament(id) {
+  try { await supabaseDelete('tournaments', id); showToast('🗑️ تم الحذف'); renderAdminTournaments(); }
+  catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+async function renderAdminUsers() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⏳ تحميل...</div>';
+  try {
+    const users = await supabaseSelect('users', '*');
+    const sorted = [...users].sort((a,b) => b.points - a.points);
+    el.innerHTML = sorted.map(u => `
+      <div class="glass" style="border-radius:12px;padding:12px;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="min-width:0">
+          <div style="font-size:13px;font-weight:700">${u.name} ${u.verified ? '<span class="badge-verified">✅</span>' : ''}</div>
+          <div style="font-size:10px;color:#64748b;overflow:hidden;text-overflow:ellipsis">${u.email || ''} • ${u.points} pts</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button onclick="toggleVerify('${u.id}', ${!u.verified})" class="arena-btn" style="font-size:11px;padding:6px 10px;border-radius:8px">${u.verified ? 'إلغاء التوثيق' : '✅ توثيق'}</button>
+          <button onclick="deleteUser('${u.id}')" style="font-size:11px;padding:6px 10px;border-radius:8px;background:none;border:1px solid #ef4444;color:#ef4444;cursor:pointer;font-family:'Cairo',sans-serif">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) { el.innerHTML = '<div style="text-align:center;color:#64748b;padding:20px">⚠️ خطأ: ' + e.message + '</div>'; }
+}
+
+async function toggleVerify(id, verified) {
+  try { await supabaseUpdate('users', id, { verified }); showToast('✅ تم التحديث'); renderAdminUsers(); }
+  catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+async function deleteUser(id) {
+  try { await supabaseDelete('users', id); showToast('🗑️ تم الحذف'); renderAdminUsers(); }
+  catch (e) { showToast('❌ خطأ: ' + e.message, true); }
+}
+
+// ============================================
+// PWA - Service Worker
+// ============================================
+if ('serviceWorker' in navigator) {
+  const swCode = `self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>new Response('Offline'))));`;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).then(() => console.log('✅ SW registered')).catch(err => console.log('⚠️ SW failed:', err));
+}
+
+// ============================================
+// OFFLINE DETECTION
+// ============================================
+window.addEventListener('online', () => showToast('🌐 تم استعادة الاتصال'));
+window.addEventListener('offline', () => showToast('📴 أنت offline', false, true));
+
+console.log('⚽ eFootball Arena Supabase loaded!');
+</script>
+</body>
+</html>
