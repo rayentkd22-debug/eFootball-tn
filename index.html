@@ -1,0 +1,4810 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>eFootball Arena | Global eFootball Platform</title>
+<meta name="description" content="Play, compete, and connect with the best eFootball players worldwide">
+<meta name="theme-color" content="#0a0e1a">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+center;
+  gap: 8px;
+}
+
+.logout-btn {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 11px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ============================================
+   ADMIN PANEL
+   ============================================ */
+
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-tab {
+  font-size: 11px;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-tab.active {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+  color: #000;
+  border: none;
+  font-weight: 700;
+}
+
+.admin-tab:hover:not(.active) {
+  color: var(--text-primary);
+  border-color: var(--accent-gold);
+}
+
+.admin-content {
+  min-height: 200px;
+}
+
+/* Admin Dashboard */
+.admin-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.dashboard-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.dashboard-card:hover {
+  border-color: rgba(245, 197, 24, 0.3);
+}
+
+.dashboard-value {
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.dashboard-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.dashboard-chart {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 12px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================
+   NOTIFICATIONS
+   ============================================ */
+
+.notif-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+
+.notif-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  cursor: pointer;
+}
+
+.notif-sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  max-width: 86vw;
+  height: 100%;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  padding: 16px 13px;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 13px;
+}
+
+.notif-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.notif-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.notif-close:hover {
+  color: var(--accent-red);
+}
+
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notification-item {
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-right: 3px solid var(--accent-gold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.notification-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.notification-item.read {
+  border-right-color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 13px;
+  color: var(--accent-gold);
+}
+
+.modal-body {
+  margin-bottom: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-cancel {
+  flex: 1;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-weight: 700;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  transition: all var(--transition-fast);
+}
+
+.modal-cancel:hover {
+  border-color: var(--accent-gold);
+  color: var(--text-primary);
+}
+
+.modal-save {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* ============================================
+   SKELETON LOADING
+   ============================================ */
+
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-card,
+.skeleton-player,
+.skeleton-message,
+.skeleton-row {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-tertiary) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: skeleton 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+.skeleton-card {
+  height: 120px;
+}
+
+.skeleton-player {
+  height: 66px;
+}
+
+.skeleton-message {
+  height: 62px;
+}
+
+.skeleton-row {
+  height: 40px;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+
+.badge-verified {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.badge-admin {
+  background: rgba(245, 197, 24, 0.15);
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.badge-mod {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (min-width: 768px) {
+  .app-main {
+    max-width: 768px;
+    padding: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .admin-dashboard {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .action-card {
+    padding: 18px;
+  }
+
+  .action-title {
+    font-size: 15px;
+  }
+
+  .action-desc {
+    font-size: 12px;
+  }
+
+  .action-icon {
+    font-size: 32px;
+    width: 56px;
+    height: 56px;
+  }
+
+  .chat-messages {
+    height: calc(100vh - 300px);
+  }
+
+  .modal-box {
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-main {
+    max-width: 900px;
+  }
+
+  .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .action-card {
+    min-height: 100px;
+  }
+}
+
+/* ============================================
+   RTL / LTR SUPPORT
+   ============================================ */
+
+html[dir="rtl"] .input-icon {
+  left: 12px;
+  right: auto;
+}
+
+html[dir="rtl"] .input-wrapper .form-input {
+  padding-left: 40px;
+  padding-right: 14px;
+}
+
+html[dir="rtl"] .message-card {
+  border-right: 3px solid var(--border-color);
+  border-left: none;
+}
+
+html[dir="rtl"] .message-card.unread {
+  border-right-color: var(--accent-gold);
+}
+
+html[dir="rtl"] .message-meta {
+  text-align: right;
+}
+
+html[dir="rtl"] .notif-sidebar {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--border-color);
+}
+
+html[dir="rtl"] .chat-menu {
+  right: auto;
+  left: 0;
+}
+
+html[dir="rtl"] .chat-menu-item {
+  text-align: left;
+}
+
+html[dir="rtl"] .form-link {
+  text-align: left;
+}
+
+html[dir="rtl"] .profile-edit-btn {
+  left: auto;
+  right: 10px;
+}
+
+html[dir="rtl"] .profile-avatar-img {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+html[dir="rtl"] .lang-toggle {
+  left: auto;
+  right: 16px;
+}
+
+html[dir="ltr"] .input-icon {
+  right: 12px;
+  left: auto;
+}
+
+html[dir="ltr"] .input-wrapper .form-input {
+  padding-right: 40px;
+  padding-left: 14px;
+}
+
+html[dir="ltr"] .message-card {
+  border-left: 3px solid var(--border-color);
+  border-right: none;
+}
+
+html[dir="ltr"] .message-card.unread {
+  border-left-color: var(--accent-gold);
+}
+
+html[dir="ltr"] .message-meta {
+  text-align: right;
+}
+
+html[dir="ltr"] .notif-sidebar {
+  left: auto;
+  right: 0;
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+
+html[dir="ltr"] .chat-menu {
+  left: auto;
+  right: 0;
+}
+
+html[dir="ltr"] .chat-menu-item {
+  text-align: left;
+}
+
+html[dir="ltr"] .form-link {
+  text-align: right;
+}
+
+html[dir="ltr"] .profile-edit-btn {
+  right: auto;
+  left: 10px;
+}
+
+html[dir="ltr"] .profile-avatar-img {
+  right: 50%;
+  left: auto;
+  transform: translateX(50%);
+}
+
+html[dir="ltr"] .lang-toggle {
+  right: auto;
+  left: 16px;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .app-header,
+  .app-nav,
+  .chat-input-area,
+  .modal-overlay,
+  .notif-panel,
+  .lang-toggle {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .glass {
+    background: #fff;
+    border: 1px solid #ccc;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .load-ball {
+    animation: none;
+  }
+
+  .skeleton-card,
+  .skeleton-player,
+  .skeleton-message,
+  .skeleton-row {
+    animation: none;
+    background: var(--bg-card);
+  }
+}
+
+/* ============================================
+   FOCUS STYLES (Accessibility)
+   ============================================ */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   SELECTION STYLES
+   ============================================ */
+
+::selection {
+  background: rgba(245, 197, 24, 0.3);
+  color: var(--text-primary);
+}
+
+/* ============================================
+   PLACEHOLDER STYLES
+   ============================================ */
+
+::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* ============================================
+   EMPTY STATES
+   ============================================ */
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 30px;
+  font-size: 13px;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+/* ============================================
+   LOADING SPINNER
+   ============================================ */
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+  border-width: 1.5px;
+}
+
+.spinner-lg {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+}
+
+/* ============================================
+   TOOLTIP
+   ============================================ */
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+  border: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* ============================================
+   CUSTOM CHECKBOX / RADIO
+   ============================================ */
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.custom-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-gold);
+  cursor: pointer;
+}
+
+/* ============================================
+   PROGRESS RING (for loading)
+   ============================================ */
+
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+  transition: stroke-dashoffset var(--transition-slow);
+  transform-origin: 50% 50%;
+}
+
+/* ============================================
+   CONFETTI / CELEBRATION EFFECTS
+   ============================================ */
+
+.celebration {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9997;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--accent-gold);
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ============================================
+   RIPPLE EFFECT
+   ============================================ */
+
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.5s;
+}
+
+.ripple:active::after {
+  transform: scale(2);
+  opacity: 1;
+  transition: 0s;
+}
+transition: 0s; }
+
+/* Voice Wave Animation */
+.voice-wave { display: flex; align-items: center; gap: 2px; height: 30px; }
+.voice-bar { width: 3px; background: var(--accent-red); border-radius: 2px; animation: wave 0.5s ease-in-out infinite alternate; }
+.voice-bar:nth-child(1) { height: 10%; animation-delay: 0s; }
+.voice-bar:nth-child(2) { height: 30%; animation-delay: 0.1s; }
+.voice-bar:nth-child(3) { height: 50%; animation-delay: 0.2s; }
+.voice-bar:nth-child(4) { height: 70%; animation-delay: 0.3s; }
+.voice-bar:nth-child(5) { height: 50%; animation-delay: 0.4s; }
+.voice-bar:nth-child(6) { height: 30%; animation-delay: 0.5s; }
+.voice-bar:nth-child(7) { height: 10%; animation-delay: 0.6s; }
+@keyframes wave { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+
+/* Sub Admin Card */
+.sub-admin-card { border: 2px solid var(--accent-blue) !important; }
+
+/* Country Flag */
+.country-flag { font-size: 20px; margin-left: 4px; }
+
+/* Avatar Upload */
+.avatar-upload { position: relative; width: 80px; height: 80px; margin: 0 auto; }
+.avatar-upload img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent-gold); }
+.avatar-upload .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; cursor: pointer; }
+.avatar-upload:hover .overlay { opacity: 1; }
+
+/* WhatsApp Button */
+.whatsapp-btn { background: linear-gradient(135deg, #128c7e, #25d366) !important; color: #fff !important; }
+
+/* Notification Item */
+.notification-item { padding: 10px; border-radius: 10px; margin-bottom: 6px; background: var(--bg-card); border: 1px solid var(--border-color); border-right: 3px solid var(--accent-gold); cursor: pointer; transition: all 0.2s; }
+.notification-item:hover { background: var(--bg-tertiary); }
+.notification-item.read { border-right-color: var(--text-muted); opacity: 0.7; }
+
+/* Admin Sub Cards */
+.sub-admin-card { border: 2px solid var(--accent-blue) !important; }
+
+/* Tab Styles */
+.tab-active { color: var(--accent-gold); border-bottom: 2px solid var(--accent-gold); }
+.tab-inactive { color: var(--text-muted); border-bottom: 2px solid transparent; }
+.tab-inactive:hover { color: var(--text-primary); }
+
+/* Input Focus States */
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent-gold); }
+
+/* Match Score Inputs */
+.match-score-input { width: 60px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 900; color: var(--text-primary); text-align: center; }
+.match-score-input:focus { border-color: var(--accent-gold); }
+
+/* Live Match Card */
+.live-match-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; transition: all var(--transition-fast); }
+.live-match-card:hover { border-color: rgba(239, 68, 68, 0.3); }
+.live-match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.live-match-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--accent-red); font-weight: 700; }
+.live-match-teams { display: flex; justify-content: center; align-items: center; gap: 16px; }
+.live-match-team { text-align: center; }
+.live-match-team-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.live-match-score { font-size: 24px; font-weight: 900; color: var(--accent-gold); }
+.live-match-vs { font-size: 14px; color: var(--text-muted); font-weight: 700; }
+
+/* Clan War Card */
+.clan-war-card { background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.1)); border: 1px solid var(--accent-purple); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px; }
+.clan-war-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.clan-war-title { font-size: 14px; font-weight: 700; color: var(--accent-purple); }
+.clan-war-status { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: rgba(245, 197, 24, 0.15); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
+.clan-war-teams { display: flex; justify-content: center; align-items: center; gap: 20px; }
+.clan-war-team { text-align: center; }
+.clan-war-team-avatar { width: 40px; height: 40px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-size: 18px; margin: 0 auto 6px; overflow: hidden; }
+.clan-war-team-name { font-size: 12px; font-weight: 700; }
+.clan-war-vs { font-size: 16px; font-weight: 900; color: var(--accent-gold); }
+
+/* Achievement Unlock Animation */
+.achievement-unlock { animation: achievementPop 0.6s ease; }
+@keyframes achievementPop { 0% { transform: scale(0.5); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+
+/* Streak Badge */
+.streak-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, var(--accent-orange), var(--accent-red)); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+/* Clan Invite Card */
+.clan-invite-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.clan-invite-info { display: flex; align-items: center; gap: 10px; }
+.clan-invite-actions { display: flex; gap: 6px; }
+
+/* Request Card */
+.request-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; }
+.request-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.request-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+/* Points Animation */
+.points-animation { animation: pointsFloat 1s ease; }
+@keyframes pointsFloat { 0% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(-20px); opacity: 0.8; } 100% { transform: translateY(-40px); opacity: 0; } }
+
+/* Level Up Animation */
+.level-up { animation: levelUp 1s ease; }
+@keyframes levelUp { 0% { transform: scale(1); filter: brightness(1); } 25% { transform: scale(1.1); filter: brightness(1.5); } 50% { transform: scale(1.2); filter: brightness(2); } 75% { transform: scale(1.1); filter: brightness(1.5); } 100% { transform: scale(1); filter: brightness(1); } }
+
+/* New Message Indicator */
+.new-message-indicator { position: absolute; top: -4px; right: -4px; width: 10px; height: 10px; background: var(--accent-red); border-radius: 50%; animation: pulse 1s infinite; }
+
+/* Scroll to Top Button */
+.scroll-top-btn { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; background: var(--accent-gold); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; z-index: 100; opacity: 0; transition: all var(--transition-normal); box-shadow: var(--shadow-md); }
+.scroll-top-btn.visible { opacity: 1; }
+.scroll-top-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+/* Pull to Refresh Indicator */
+.pull-refresh { position: absolute; top: -50px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); transition: all var(--transition-fast); }
+.pull-refresh.visible { top: 10px; }
+.pull-refresh-spinner { width: 16px; height: 16px; border: 2px solid var(--border-color); border-top-color: var(--accent-gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+/* Offline Banner */
+.offline-banner { position: fixed; top: 0; left: 0; right: 0; background: var(--accent-red); color: #fff; text-align: center; padding: 8px; font-size: 12px; font-weight: 700; z-index: 10000; transform: translateY(-100%); transition: transform var(--transition-normal); }
+.offline-banner.visible { transform: translateY(0); }
+
+/* Update Available Banner */
+.update-banner { position: fixed; bottom: 0; left: 0; right: 0; background: var(--accent-gold); color: #000; text-align: center; padding: 12px; font-size: 13px; font-weight: 700; z-index: 10000; transform: translateY(100%); transition: transform var(--transition-normal); display: flex; justify-content: center; align-items: center; gap: 12px; }
+.update-banner.visible { transform: translateY(0); }
+.update-banner-btn { background: #000; color: var(--accent-gold); border: none; padding: 6px 14px; border-radius: var(--radius-sm); font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer; }
+
+/* Image Preview Modal */
+.image-preview-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px; }
+.image-preview-overlay.open { display: flex; }
+.image-preview-img { max-width: 100%; max-height: 90vh; border-radius: var(--radius-md); }
+.image-preview-close { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: none; color: #fff; font-size: 24px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* Emoji Picker */
+.emoji-picker { position: absolute; bottom: 100%; left: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; z-index: 50; box-shadow: var(--shadow-lg); }
+.emoji-picker-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; border-radius: 4px; transition: background var(--transition-fast); }
+.emoji-picker-btn:hover { background: var(--bg-tertiary); }
+
+/* Reaction Bar */
+.reaction-bar { display: flex; gap: 4px; padding: 4px 8px; background: var(--bg-tertiary); border-radius: 20px; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-4px); opacity: 0; pointer-events: none; transition: all var(--transition-fast); }
+.message-bubble:hover .reaction-bar { opacity: 1; pointer-events: auto; }
+.reaction-btn { background: none; border: none; font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 10px; transition: transform var(--transition-fast); }
+.reaction-btn:hover { transform: scale(1.2); }
+.reaction-count { display: inline-flex; align-items: center; gap: 2px; font-size: 10px; background: var(--bg-tertiary); padding: 1px 6px; border-radius: 10px; margin-top: 4px; }
+
+/* Reply Preview */
+.reply-preview { background: rgba(245, 197, 24, 0.1); border-right: 3px solid var(--accent-gold); padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 11px; }
+.reply-preview-text { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.reply-preview-name { font-weight: 700; color: var(--accent-gold); font-size: 10px; }
+
+/* Message Actions */
+.message-actions { position: absolute; top: -20px; right: 0; display: flex; gap: 4px; opacity: 0; transition: opacity var(--transition-fast); }
+.message-bubble:hover .message-actions { opacity: 1; }
+.message-action-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; color: var(--text-muted); transition: all var(--transition-fast); }
+.message-action-btn:hover { background: var(--accent-gold); color: #000; border-color: var(--accent-gold); }
+
+/* Group Chat Indicator */
+.group-indicator { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--accent-purple); }
+.group-indicator-icon { font-size: 12px; }
+
+/* Clan Tag */
+.clan-tag-display { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(59, 130, 246, 0.2)); color: var(--accent-purple); border: 1px solid var(--accent-purple); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+/* Tournament Bracket */
+.bracket-container { display: flex; gap: 20px; overflow-x: auto; padding: 10px 0; }
+.bracket-round { display: flex; flex-direction: column; justify-content: space-around; gap: 10px; min-width: 180px; }
+.bracket-match { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; }
+.bracket-player { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 11px; }
+.bracket-player.winner { color: var(--accent-gold); font-weight: 700; }
+.bracket-player.loser { color: var(--text-muted); opacity: 0.6; }
+.bracket-connector { width: 20px; height: 2px; background: var(--border-color); align-self: center; }
+
+/* Heatmap */
+.heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.heatmap-cell { aspect-ratio: 1; border-radius: 2px; background: var(--bg-tertiary); transition: all var(--transition-fast); }
+.heatmap-cell:hover { transform: scale(1.2); }
+.heatmap-cell.level-1 { background: rgba(34, 197, 94, 0.3); }
+.heatmap-cell.level-2 { background: rgba(34, 197, 94, 0.5); }
+.heatmap-cell.level-3 { background: rgba(34, 197, 94, 0.7); }
+.heatmap-cell.level-4 { background: rgba(34, 197, 94, 0.9); }
+
+/* Chart Bars */
+.chart-bar-container { display: flex; align-items: flex-end; gap: 4px; height: 100px; padding: 10px 0; }
+.chart-bar { flex: 1; background: linear-gradient(to top, var(--accent-gold), var(--accent-orange)); border-radius: 4px 4px 0 0; min-height: 4px; transition: height var(--transition-slow); position: relative; }
+.chart-bar-label { position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--text-muted); white-space: nowrap; }
+.chart-bar-value { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; color: var(--accent-gold); }
+
+/* Pagination */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; }
+.pagination-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 6px 12px; border-radius: var(--radius-sm); font-family: 'Cairo', sans-serif; font-size: 12px; cursor: pointer; transition: all var(--transition-fast); }
+.pagination-btn:hover { border-color: var(--accent-gold); }
+.pagination-btn.active { background: var(--accent-gold); color: #000; border-color: var(--accent-gold); }
+.pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Dropdown */
+.dropdown { position: relative; }
+.dropdown-menu { position: absolute; top: 100%; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px; min-width: 150px; z-index: 50; box-shadow: var(--shadow-md); display: none; }
+.dropdown.open .dropdown-menu { display: block; }
+.dropdown-item { display: block; width: 100%; padding: 8px 12px; background: none; border: none; color: var(--text-primary); font-family: 'Cairo', sans-serif; font-size: 12px; text-align: right; cursor: pointer; border-radius: var(--radius-sm); transition: all var(--transition-fast); }
+.dropdown-item:hover { background: var(--bg-tertiary); color: var(--accent-gold); }
+.dropdown-item.danger { color: var(--accent-red); }
+.dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* Tags/Chips */
+.chip { display: inline-flex; align-items: center; gap: 4px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 20px; padding: 3px 10px; font-size: 11px; color: var(--text-secondary); }
+.chip.active { background: rgba(245, 197, 24, 0.15); border-color: var(--accent-gold); color: var(--accent-gold); }
+.chip-removable { padding-right: 6px; }
+.chip-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; margin-left: 4px; }
+.chip-remove:hover { color: var(--accent-red); }
+
+/* Progress Steps */
+.progress-steps { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.progress-step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; position: relative; }
+.progress-step::after { content: ""; position: absolute; top: 12px; left: 50%; right: -50%; height: 2px; background: var(--border-color); z-index: 0; }
+.progress-step:last-child::after { display: none; }
+.progress-step.completed::after { background: var(--accent-gold); }
+.progress-step-dot { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-tertiary); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; z-index: 1; transition: all var(--transition-fast); }
+.progress-step.completed .progress-step-dot { background: var(--accent-gold); border-color: var(--accent-gold); color: #000; }
+.progress-step.active .progress-step-dot { background: var(--bg-primary); border-color: var(--accent-gold); color: var(--accent-gold); box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.2); }
+.progress-step-label { font-size: 9px; color: var(--text-muted); }
+.progress-step.completed .progress-step-label { color: var(--accent-gold); }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 20px; }
+.timeline::before { content: ""; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: var(--border-color); }
+.timeline-item { position: relative; padding-bottom: 16px; }
+.timeline-item::before { content: ""; position: absolute; left: -18px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--bg-tertiary); border: 2px solid var(--border-color); }
+.timeline-item.active::before { background: var(--accent-gold); border-color: var(--accent-gold); }
+.timeline-time { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+.timeline-content { font-size: 12px; }
+
+/* Comparison Table */
+.comparison-table { width: 100%; border-collapse: collapse; }
+.comparison-table th, .comparison-table td { padding: 8px 12px; text-align: center; border-bottom: 1px solid var(--border-color); font-size: 12px; }
+.comparison-table th { background: rgba(245, 197, 24, 0.08); font-weight: 700; color: var(--accent-gold); }
+.comparison-table td:first-child { text-align: right; font-weight: 700; color: var(--text-secondary); }
+.comparison-table .winner { color: var(--accent-green); font-weight: 700; }
+
+/* Stats Comparison */
+.stats-comparison { display: flex; align-items: center; gap: 12px; }
+.stats-comparison-item { flex: 1; text-align: center; }
+.stats-comparison-bar { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.stats-comparison-fill { height: 100%; border-radius: 4px; transition: width var(--transition-slow); }
+.stats-comparison-fill.left { background: linear-gradient(to right, var(--accent-gold), var(--accent-orange)); }
+.stats-comparison-fill.right { background: linear-gradient(to left, var(--accent-blue), var(--accent-purple)); }
+
+/* Mini Chart */
+.mini-chart { display: flex; align-items: flex-end; gap: 2px; height: 30px; }
+.mini-chart-bar { flex: 1; background: var(--accent-gold); border-radius: 2px 2px 0 0; min-height: 2px; transition: height var(--transition-slow); }
+.mini-chart-bar.negative { background: var(--accent-red); }
+
+/* Color Picker */
+.color-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+.color-option { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all var(--transition-fast); }
+.color-option:hover { transform: scale(1.1); }
+.color-option.selected { border-color: #fff; box-shadow: 0 0 0 2px var(--accent-gold); }
+
+/* File Upload Zone */
+.upload-zone { border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 30px; text-align: center; cursor: pointer; transition: all var(--transition-fast); }
+.upload-zone:hover { border-color: var(--accent-gold); background: rgba(245, 197, 24, 0.05); }
+.upload-zone.dragover { border-color: var(--accent-gold); background: rgba(245, 197, 24, 0.1); }
+.upload-zone-icon { font-size: 32px; margin-bottom: 8px; }
+.upload-zone-text { font-size: 12px; color: var(--text-muted); }
+
+/* Audio Message */
+.audio-message { display: flex; align-items: center; gap: 8px; background: var(--bg-tertiary); border-radius: 20px; padding: 8px 12px; }
+.audio-play-btn { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-gold); border: none; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; color: #000; }
+.audio-waveform { flex: 1; height: 20px; display: flex; align-items: center; gap: 2px; }
+.audio-waveform-bar { flex: 1; background: var(--accent-gold); border-radius: 2px; transition: height var(--transition-fast); }
+.audio-duration { font-size: 10px; color: var(--text-muted); }
+
+/* Poll */
+.poll-option { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: all var(--transition-fast); position: relative; overflow: hidden; }
+.poll-option:hover { border-color: var(--accent-gold); }
+.poll-option.selected { border-color: var(--accent-gold); background: rgba(245, 197, 24, 0.05); }
+.poll-option-bar { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(245, 197, 24, 0.15); transition: width var(--transition-slow); z-index: 0; }
+.poll-option-content { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; }
+.poll-option-text { font-size: 12px; }
+.poll-option-percent { font-size: 12px; font-weight: 700; color: var(--accent-gold); }
+
+/* Calendar */
+.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.calendar-header { font-size: 10px; color: var(--text-muted); text-align: center; padding: 4px; font-weight: 700; }
+.calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); }
+.calendar-day:hover { background: var(--bg-tertiary); }
+.calendar-day.today { background: var(--accent-gold); color: #000; font-weight: 700; }
+.calendar-day.has-event { position: relative; }
+.calendar-day.has-event::after { content: ""; position: absolute; bottom: 2px; width: 4px; height: 4px; background: var(--accent-red); border-radius: 50%; }
+.calendar-day.other-month { color: var(--text-muted); opacity: 0.5; }
+
+/* Time Picker */
+.time-picker { display: flex; align-items: center; gap: 4px; }
+.time-picker-input { width: 40px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px; text-align: center; font-family: 'Cairo', sans-serif; font-size: 14px; color: var(--text-primary); }
+.time-picker-separator { color: var(--text-muted); font-weight: 700; }
+
+/* Slider */
+.slider { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: var(--bg-tertiary); border-radius: 2px; outline: none; }
+.slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: var(--accent-gold); border-radius: 50%; cursor: pointer; border: 2px solid var(--bg-primary); }
+.slider::-moz-range-thumb { width: 16px; height: 16px; background: var(--accent-gold); border-radius: 50%; cursor: pointer; border: 2px solid var(--bg-primary); }
+
+/* Toggle Switch */
+.toggle-switch { position: relative; width: 40px; height: 22px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--bg-tertiary); border-radius: 22px; transition: all var(--transition-fast); border: 1px solid var(--border-color); }
+.toggle-slider::before { content: ""; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px; background: var(--text-muted); border-radius: 50%; transition: all var(--transition-fast); }
+.toggle-switch input:checked + .toggle-slider { background: rgba(245, 197, 24, 0.2); border-color: var(--accent-gold); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--accent-gold); }
+
+/* Range Input with Labels */
+.range-labeled { display: flex; align-items: center; gap: 10px; }
+.range-label { font-size: 11px; color: var(--text-muted); min-width: 30px; }
+
+/* Color Preview */
+.color-preview { width: 24px; height: 24px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+
+/* Font Size Preview */
+.font-preview { font-size: 14px; color: var(--text-primary); }
+
+/* Theme Preview */
+.theme-preview { width: 60px; height: 40px; border-radius: var(--radius-sm); border: 2px solid transparent; cursor: pointer; transition: all var(--transition-fast); }
+.theme-preview:hover { transform: scale(1.05); }
+.theme-preview.selected { border-color: var(--accent-gold); }
+
+/* Notification Settings */
+.notif-setting { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+.notif-setting-label { font-size: 12px; }
+.notif-setting-desc { font-size: 10px; color: var(--text-muted); }
+
+/* Privacy Settings */
+.privacy-setting { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 8px; }
+.privacy-setting-info { flex: 1; }
+.privacy-setting-title { font-size: 12px; font-weight: 700; }
+.privacy-setting-desc { font-size: 10px; color: var(--text-muted); }
+
+/* Blocked Users List */
+.blocked-user { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 6px; }
+.blocked-user-info { display: flex; align-items: center; gap: 8px; }
+.blocked-user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; overflow: hidden; }
+
+/* Data Usage */
+.data-usage-bar { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.data-usage-fill { height: 100%; border-radius: 4px; background: linear-gradient(to right, var(--accent-green), var(--accent-gold)); transition: width var(--transition-slow); }
+.data-usage-text { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+/* Session List */
+.session-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 6px; }
+.session-info { display: flex; align-items: center; gap: 8px; }
+.session-device { font-size: 12px; font-weight: 700; }
+.session-location { font-size: 10px; color: var(--text-muted); }
+.session-current { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); font-size: 9px; padding: 2px 6px; border-radius: 10px; }
+
+/* Two Factor Auth */
+.tfa-code { display: flex; gap: 8px; justify-content: center; margin: 16px 0; }
+.tfa-digit { width: 40px; height: 48px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); text-align: center; font-size: 20px; font-weight: 700; color: var(--text-primary); font-family: monospace; }
+.tfa-digit:focus { outline: none; border-color: var(--accent-gold); }
+
+/* Backup Codes */
+.backup-codes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.backup-code { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px; text-align: center; font-family: monospace; font-size: 12px; color: var(--text-primary); }
+.backup-code.used { text-decoration: line-through; opacity: 0.5; }
+
+/* QR Code Container */
+.qr-container { background: #fff; padding: 16px; border-radius: var(--radius-md); display: inline-block; }
+
+/* Connection Status */
+.connection-status { display: flex; align-items: center; gap: 6px; font-size: 10px; }
+.connection-status-dot { width: 6px; height: 6px; border-radius: 50%; }
+.connection-status-dot.connected { background: var(--accent-green); }
+.connection-status-dot.connecting { background: var(--accent-gold); animation: pulse 1s infinite; }
+.connection-status-dot.disconnected { background: var(--accent-red); }
+
+/* Sync Indicator */
+.sync-indicator { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-muted); }
+.sync-spinner { width: 12px; height: 12px; border: 1.5px solid var(--border-color); border-top-color: var(--accent-gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+/* Version Info */
+.version-info { text-align: center; padding: 20px; color: var(--text-muted); font-size: 11px; }
+.version-number { font-size: 14px; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px; }
+
+/* Changelog */
+.changelog-item { padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+.changelog-version { font-size: 12px; font-weight: 700; color: var(--accent-gold); margin-bottom: 4px; }
+.changelog-date { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
+.changelog-list { list-style: none; }
+.changelog-list li { font-size: 11px; color: var(--text-secondary); padding: 2px 0; padding-right: 16px; position: relative; }
+.changelog-list li::before { content: "•"; position: absolute; right: 0; color: var(--accent-gold); }
+
+/* Feedback Form */
+.feedback-rating { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+.feedback-star { font-size: 24px; cursor: pointer; transition: all var(--transition-fast); }
+.feedback-star:hover { transform: scale(1.2); }
+.feedback-star.active { color: var(--accent-gold); }
+
+/* Support Ticket */
+.ticket-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; }
+.ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ticket-id { font-size: 10px; color: var(--text-muted); }
+.ticket-status { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
+.ticket-subject { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.ticket-preview { font-size: 11px; color: var(--text-muted); }
+
+/* FAQ Accordion */
+.faq-item { border-bottom: 1px solid var(--border-color); }
+.faq-question { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer; font-size: 13px; font-weight: 700; }
+.faq-question::after { content: "+"; font-size: 18px; color: var(--accent-gold); transition: transform var(--transition-fast); }
+.faq-item.open .faq-question::after { transform: rotate(45deg); }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height var(--transition-normal); }
+.faq-item.open .faq-answer { max-height: 200px; }
+.faq-answer-content { padding: 0 0 12px; font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+/* Contact Methods */
+.contact-method { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 8px; cursor: pointer; transition: all var(--transition-fast); }
+.contact-method:hover { border-color: var(--accent-gold); }
+.contact-method-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.contact-method-info { flex: 1; }
+.contact-method-title { font-size: 13px; font-weight: 700; }
+.contact-method-desc { font-size: 10px; color: var(--text-muted); }
+
+/* Report Categories */
+.report-category { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 6px; cursor: pointer; transition: all var(--transition-fast); }
+.report-category:hover { border-color: var(--accent-gold); }
+.report-category.selected { background: rgba(245, 197, 24, 0.05); border-color: var(--accent-gold); }
+.report-category-icon { font-size: 20px; }
+.report-category-info { flex: 1; }
+.report-category-title { font-size: 12px; font-weight: 700; }
+.report-category-desc { font-size: 10px; color: var(--text-muted); }
+
+/* Evidence Upload */
+.evidence-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.evidence-item { position: relative; width: 80px; height: 80px; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-tertiary); }
+.evidence-item img { width: 100%; height: 100%; object-fit: cover; }
+.evidence-item-remove { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; background: var(--accent-red); border: none; border-radius: 50%; color: #fff; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* Moderation Queue */
+.mod-queue-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-sm); margin-bottom: 6px; }
+.mod-queue-priority { width: 4px; height: 40px; border-radius: 2px; flex-shrink: 0; }
+.mod-queue-priority.high { background: var(--accent-red); }
+.mod-queue-priority.medium { background: var(--accent-gold); }
+.mod-queue-priority.low { background: var(--accent-green); }
+.mod-queue-content { flex: 1; min-width: 0; }
+.mod-queue-title { font-size: 12px; font-weight: 700; }
+.mod-queue-meta { font-size: 10px; color: var(--text-muted); }
+.mod-queue-actions { display: flex; gap: 4px; }
+
+/* Auto Mod Rules */
+.automod-rule { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; }
+.automod-rule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.automod-rule-name { font-size: 13px; font-weight: 700; }
+.automod-rule-toggle { display: flex; align-items: center; gap: 6px; }
+.automod-rule-conditions { font-size: 11px; color: var(--text-muted); }
+.automod-rule-actions { display: flex; gap: 4px; margin-top: 8px; }
+
+/* Analytics Cards */
+.analytics-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; }
+.analytics-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.analytics-card-title { font-size: 12px; font-weight: 700; }
+.analytics-card-value { font-size: 28px; font-weight: 900; }
+.analytics-card-change { font-size: 11px; display: flex; align-items: center; gap: 4px; }
+.analytics-card-change.positive { color: var(--accent-green); }
+.analytics-card-change.negative { color: var(--accent-red); }
+.analytics-card-chart { height: 60px; margin-top: 10px; }
+
+/* Export Button */
+.export-btn { display: flex; align-items: center; gap: 6px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 11px; color: var(--text-primary); cursor: pointer; font-family: 'Cairo', sans-serif; transition: all var(--transition-fast); }
+.export-btn:hover { border-color: var(--accent-gold); }
+
+/* Data Table */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--border-color); font-size: 11px; }
+.data-table th { background: rgba(245, 197, 24, 0.08); font-weight: 700; color: var(--accent-gold); white-space: nowrap; }
+.data-table tr:hover { background: rgba(245, 197, 24, 0.03); }
+.data-table-sort { background: none; border: none; color: var(--accent-gold); cursor: pointer; font-size: 10px; margin-right: 4px; }
+
+/* Filter Chips */
+.filter-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.filter-chip { display: flex; align-items: center; gap: 4px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 20px; padding: 4px 10px; font-size: 11px; color: var(--text-secondary); }
+.filter-chip.active { background: rgba(245, 197, 24, 0.15); border-color: var(--accent-gold); color: var(--accent-gold); }
+.filter-chip-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 10px; }
+
+/* Date Range Picker */
+.date-range { display: flex; align-items: center; gap: 8px; }
+.date-range-input { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 6px 10px; font-family: 'Cairo', sans-serif; font-size: 12px; color: var(--text-primary); }
+.date-range-separator { color: var(--text-muted); }
+
+/* Search Results Highlight */
+.search-highlight { background: rgba(245, 197, 24, 0.3); padding: 0 2px; border-radius: 2px; }
+
+/* Command Palette */
+.command-palette { position: fixed; top: 20%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 500px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); z-index: 300; display: none; }
+.command-palette.open { display: block; }
+.command-palette-input { width: 100%; background: none; border: none; border-bottom: 1px solid var(--border-color); padding: 12px 16px; font-family: 'Cairo', sans-serif; font-size: 14px; color: var(--text-primary); outline: none; }
+.command-palette-list { max-height: 300px; overflow-y: auto; }
+.command-palette-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; cursor: pointer; transition: background var(--transition-fast); }
+.command-palette-item:hover, .command-palette-item.selected { background: var(--bg-tertiary); }
+.command-palette-item-icon { font-size: 16px; }
+.command-palette-item-info { flex: 1; }
+.command-palette-item-title { font-size: 13px; }
+.command-palette-item-desc { font-size: 10px; color: var(--text-muted); }
+.command-palette-item-shortcut { font-size: 10px; color: var(--text-muted); background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; }
+
+/* Keyboard Shortcuts */
+.kbd { display: inline-flex; align-items: center; justify-content: center; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 10px; font-family: monospace; color: var(--text-secondary); min-width: 20px; }
+
+/* Onboarding */
+.onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 400; }
+.onboarding-tooltip { position: absolute; background: var(--bg-secondary); border: 1px solid var(--accent-gold); border-radius: var(--radius-md); padding: 16px; max-width: 280px; box-shadow: var(--shadow-lg); }
+.onboarding-tooltip-arrow { position: absolute; width: 12px; height: 12px; background: var(--bg-secondary); border: 1px solid var(--accent-gold); transform: rotate(45deg); }
+.onboarding-tooltip-title { font-size: 14px; font-weight: 700; color: var(--accent-gold); margin-bottom: 6px; }
+.onboarding-tooltip-text { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+.onboarding-tooltip-actions { display: flex; justify-content: space-between; }
+.onboarding-spotlight { position: absolute; border-radius: var(--radius-md); box-shadow: 0 0 0 9999px rgba(0,0,0,0.8); pointer-events: none; }
+
+/* Tour Steps */
+.tour-step { position: relative; }
+.tour-step-number { position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background: var(--accent-gold); color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
+
+/* Welcome Modal */
+.welcome-modal { text-align: center; padding: 20px; }
+.welcome-modal-icon { font-size: 64px; margin-bottom: 16px; }
+.welcome-modal-title { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.welcome-modal-text { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6; }
+.welcome-modal-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.welcome-feature { display: flex; align-items: center; gap: 10px; text-align: right; }
+.welcome-feature-icon { font-size: 24px; }
+.welcome-feature-text { font-size: 12px; }
+
+/* Easter Egg */
+.easter-egg { position: fixed; bottom: 10px; right: 10px; font-size: 20px; opacity: 0.1; cursor: pointer; transition: opacity var(--transition-fast); }
+.easter-egg:hover { opacity: 1; }
+
+/* Debug Panel */
+.debug-panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 8px 12px; font-size: 10px; font-family: monospace; z-index: 500; display: none; }
+.debug-panel.visible { display: block; }
+.debug-panel-row { display: flex; gap: 16px; }
+.debug-panel-label { color: var(--text-muted); }
+.debug-panel-value { color: var(--accent-gold); }
+
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen" class="loading-screen">
+  <div class="load-ball" id="load-icon">⚽</div>
+  <div class="load-title" id="load-title">eFootball Arena</div>
+  <div class="load-subtitle" id="load-subtitle">🔄 Testing connection...</div>
+  <div class="load-bar" id="load-bar"><div class="load-bar-fill"></div></div>
+  <div id="load-error" class="load-error" style="display:none">
+    <div class="load-error-title">❌ Connection Error</div>
+    <div id="error-text" class="load-error-text"></div>
+    <button onclick="location.reload()" class="arena-btn retry-btn">🔄 Retry</button>
+  </div>
+</div>
+
+<!-- Toast System -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Language Toggle -->
+<div id="lang-toggle" class="lang-toggle" onclick="toggleLanguage()">
+  <span id="lang-text">EN</span>
+</div>
+
+<!-- ==================== AUTH SCREEN ==================== -->
+<div id="auth-screen" class="auth-screen" style="display:none">
+  <div class="auth-bg-ring ring-1"></div>
+  <div class="auth-bg-ring ring-2"></div>
+
+  <div class="auth-brand">
+    <div class="auth-brand-badge">
+      <span class="auth-brand-text">eFootball Arena</span>
+    </div>
+    <div class="auth-brand-subtitle" data-i18n="auth.subtitle">🌍 Global eFootball Platform</div>
+  </div>
+
+  <div class="auth-card glass">
+    <button onclick="loginGoogle()" class="google-btn">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span data-i18n="auth.google">Continue with Google</span>
+    </button>
+
+    <div class="security-notice">
+      <div class="security-title" data-i18n="auth.security.title">🔒 Your security matters</div>
+      <div data-i18n="auth.security.text">eFootball Arena is a companion platform only — <span class="highlight">we never ask for your game password</span>. Your data is fully protected.</div>
+    </div>
+
+    <div class="divider">
+      <span data-i18n="auth.or_email">Or with email</span>
+    </div>
+
+    <div class="auth-tabs">
+      <button id="tab-login" onclick="switchTab('login')" class="auth-tab active" data-i18n="auth.login">Login</button>
+      <button id="tab-register" onclick="switchTab('register')" class="auth-tab" data-i18n="auth.register">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="form-login" class="auth-form">
+      <div id="login-error" class="form-error" style="display:none"></div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.email">Email</label>
+        <div class="input-wrapper">
+          <input id="login-email" type="email" placeholder="example@email.com" dir="ltr" class="form-input">
+          <span class="input-icon">✉️</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.password">Password</label>
+        <div class="input-wrapper">
+          <input id="login-pass" type="password" placeholder="••••••••" dir="ltr" class="form-input">
+          <span class="input-icon toggle-pass" onclick="togglePass('login-pass')">👁️</span>
+        </div>
+      </div>
+      <div class="form-link" onclick="showToast('📧 Check your email', 'info')" data-i18n="auth.forgot">Forgot password?</div>
+      <button onclick="doLogin()" class="arena-btn auth-submit" data-i18n="auth.login_btn">Login</button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="form-register" class="auth-form" style="display:none">
+      <div id="reg-error" class="form-error" style="display:none"></div>
+      <div id="reg-success" class="form-success" style="display:none"></div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.player_name">Player Name</label>
+        <input id="reg-name" type="text" placeholder="Ahmed_Player" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.email">Email</label>
+        <div class="input-wrapper">
+          <input id="reg-email" type="email" placeholder="example@email.com" dir="ltr" class="form-input">
+          <span class="input-icon">✉️</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.whatsapp">WhatsApp Number</label>
+        <div class="whatsapp-input">
+          <select id="reg-country" class="form-select">
+            <option value="216" data-flag="🇹🇳">🇹🇳 +216</option>
+            <option value="20" data-flag="🇪🇬">🇪🇬 +20</option>
+            <option value="966" data-flag="🇸🇦">🇸🇦 +966</option>
+            <option value="971" data-flag="🇦🇪">🇦🇪 +971</option>
+            <option value="974" data-flag="🇶🇦">🇶🇦 +974</option>
+            <option value="965" data-flag="🇰🇼">🇰🇼 +965</option>
+            <option value="962" data-flag="🇯🇴">🇯🇴 +962</option>
+            <option value="961" data-flag="🇱🇧">🇱🇧 +961</option>
+            <option value="963" data-flag="🇸🇾">🇸🇾 +963</option>
+            <option value="964" data-flag="🇮🇶">🇮🇶 +964</option>
+            <option value="967" data-flag="🇾🇪">🇾🇪 +967</option>
+            <option value="212" data-flag="🇲🇦">🇲🇦 +212</option>
+            <option value="213" data-flag="🇩🇿">🇩🇿 +213</option>
+            <option value="218" data-flag="🇱🇾">🇱🇾 +218</option>
+            <option value="249" data-flag="🇸🇩">🇸🇩 +249</option>
+            <option value="970" data-flag="🇵🇸">🇵🇸 +970</option>
+          </select>
+          <div class="input-wrapper flex-1">
+            <input id="reg-whatsapp" type="tel" placeholder="50123456" dir="ltr" class="form-input">
+            <span class="input-icon">📱</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.password">Password</label>
+        <div class="input-wrapper">
+          <input id="reg-pass" type="password" placeholder="••••••••" dir="ltr" class="form-input">
+          <span class="input-icon toggle-pass" onclick="togglePass('reg-pass')">👁️</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="auth.confirm_password">Confirm Password</label>
+        <input id="reg-pass2" type="password" placeholder="••••••••" dir="ltr" class="form-input">
+      </div>
+      <button onclick="doRegister()" class="arena-btn auth-submit" data-i18n="auth.register_btn">Create Account ✅</button>
+    </div>
+  </div>
+
+  <a href="https://chat.whatsapp.com/CQUZiyIxktoFkfxOparUk6?s=cl&p=i&ilr=2" target="_blank" class="whatsapp-group-btn">
+    <svg width="20" height="20" viewBox="0 0 32 32" fill="white"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.472 2.027 7.776L0 32l8.463-2.004A15.94 15.94 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.406 22.594c-.35.984-2.04 1.88-2.812 2-.735.113-1.656.16-5.328-1.14-4.469-1.578-7.344-6.11-7.563-6.39-.219-.282-1.781-2.375-1.781-4.532 0-2.156 1.125-3.218 1.531-3.656.406-.437.89-.547 1.188-.547h.843c.297 0 .594.004.844.625.297.734 1.015 2.578 1.094 2.766.078.187.125.406.016.656-.11.25-.172.406-.344.61-.172.203-.36.453-.516.609-.172.172-.344.359-.148.703.197.344.875 1.453 1.875 2.344 1.297 1.156 2.39 1.516 2.734 1.688.344.172.547.14.75-.094.203-.234.875-1.016 1.11-1.359.234-.344.468-.297.797-.172.328.125 2.078 1.016 2.422 1.188.344.172.578.266.656.406.078.14.078.844-.28 1.828z"/></svg>
+    <span data-i18n="auth.whatsapp_group">Join Official WhatsApp Group 🏆</span>
+  </a>
+</div>
+
+<!-- ==================== APP SCREEN ==================== -->
+<div id="app-screen" class="app-screen" style="display:none">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div id="header-pts" class="header-points" onclick="showTab('profile')">
+      <span class="points-icon">🏅</span>
+      <span id="header-points-val">0</span>
+      <span class="points-label">pts</span>
+    </div>
+    <div class="header-brand">
+      e<span class="brand-highlight">Football</span> Arena
+    </div>
+    <div class="header-actions">
+      <button onclick="toggleNotif()" class="header-btn notif-btn">
+        <span class="notif-icon">🔔</span>
+        <span id="notif-badge" class="notif-badge" style="display:none">0</span>
+      </button>
+      <div id="user-avatar" class="header-avatar" onclick="showTab('profile')">
+        <span id="user-avatar-text">A</span>
+        <img id="user-avatar-img" class="avatar-img" alt="">
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="app-nav">
+    <button id="tab-btn-home" onclick="showTab('home')" class="nav-tab active">
+      <span class="nav-icon">⊞</span>
+      <span class="nav-label" data-i18n="nav.home">Home</span>
+    </button>
+    <button id="tab-btn-tournaments" onclick="showTab('tournaments')" class="nav-tab">
+      <span class="nav-icon">🏆</span>
+      <span class="nav-label" data-i18n="nav.tournaments">Tournaments</span>
+    </button>
+    <button id="tab-btn-clans" onclick="showTab('clans')" class="nav-tab">
+      <span class="nav-icon">🛡️</span>
+      <span class="nav-label" data-i18n="nav.clans">Clans</span>
+    </button>
+    <button id="tab-btn-friendly" onclick="showTab('friendly')" class="nav-tab">
+      <span class="nav-icon">⚽</span>
+      <span class="nav-label" data-i18n="nav.friendly">Friendly</span>
+    </button>
+    <button id="tab-btn-leaderboard" onclick="showTab('leaderboard')" class="nav-tab">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label" data-i18n="nav.leaderboard">Ranking</span>
+    </button>
+    <button id="tab-btn-messages" onclick="showTab('messages')" class="nav-tab">
+      <span class="nav-icon">💬</span>
+      <span class="nav-label" data-i18n="nav.messages">Messages</span>
+    </button>
+    <button id="tab-btn-profile" onclick="showTab('profile')" class="nav-tab">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label" data-i18n="nav.profile">Profile</span>
+    </button>
+    <button id="tab-btn-admin" onclick="showTab('admin')" class="nav-tab admin-tab" style="display:none">
+      <span class="nav-icon">👑</span>
+      <span class="nav-label" data-i18n="nav.admin">Admin</span>
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="app-main">
+
+    <!-- ===== HOME ===== -->
+    <section id="sec-home" class="page-section animate-slide-up">
+      <!-- Countdown -->
+      <div id="home-countdown" class="countdown-card glass glow-yellow" style="display:none">
+        <div class="countdown-label" data-i18n="home.next_tournament">⏳ Next tournament starts in</div>
+        <div id="home-countdown-title" class="countdown-title">🏆 Summer Championship</div>
+        <div class="countdown-timer">
+          <div class="timer-unit">
+            <span id="cd-days" class="timer-value">00</span>
+            <span class="timer-label" data-i18n="time.days">Days</span>
+          </div>
+          <span class="timer-separator">:</span>
+          <div class="timer-unit">
+            <span id="cd-hours" class="timer-value">00</span>
+            <span class="timer-label" data-i18n="time.hours">Hours</span>
+          </div>
+          <span class="timer-separator">:</span>
+          <div class="timer-unit">
+            <span id="cd-mins" class="timer-value">00</span>
+            <span class="timer-label" data-i18n="time.minutes">Minutes</span>
+          </div>
+          <span class="timer-separator">:</span>
+          <div class="timer-unit">
+            <span id="cd-secs" class="timer-value">00</span>
+            <span class="timer-label" data-i18n="time.seconds">Seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <div onclick="showTab('tournaments')" class="action-card card-green card-hover">
+          <div class="action-info">
+            <h3 class="action-title" data-i18n="home.ready">Ready to compete?</h3>
+            <p class="action-desc" data-i18n="home.register">Register for the official tournament 🥇</p>
+          </div>
+          <div class="action-icon">🏆</div>
+        </div>
+
+        <div onclick="showTab('clans')" class="action-card card-purple card-hover">
+          <div class="action-info">
+            <h3 class="action-title" data-i18n="home.clan">Join a Clan!</h3>
+            <p class="action-desc" data-i18n="home.clan_desc">Team up with the best players 🛡️</p>
+          </div>
+          <div class="action-icon">🛡️</div>
+        </div>
+
+        <div onclick="showTab('friendly')" class="action-card card-cyan card-hover">
+          <div class="action-info">
+            <h3 class="action-title" data-i18n="home.looking">Looking for an opponent?</h3>
+            <p class="action-desc" data-i18n="home.instant">Instant friendly match ⚡</p>
+          </div>
+          <div class="action-icon">⚽</div>
+        </div>
+
+        <div onclick="showTab('leaderboard')" class="action-card card-violet card-hover">
+          <div class="action-info">
+            <h3 class="action-title" data-i18n="home.results">Results & Rankings</h3>
+            <p class="action-desc" data-i18n="home.classement">Player Classement 📊</p>
+          </div>
+          <div class="action-icon">📋</div>
+        </div>
+
+        <div onclick="openReportModal()" class="action-card card-orange card-hover">
+          <div class="action-info">
+            <h3 class="action-title" data-i18n="home.report">Match Report 🚨</h3>
+            <p class="action-desc" data-i18n="home.report_desc">Send a report to admin</p>
+          </div>
+          <div class="action-icon">🚨</div>
+        </div>
+      </div>
+
+      <!-- Live Matches Widget -->
+      <div id="live-matches-widget" class="live-matches-widget glass" style="display:none">
+        <div class="widget-header">
+          <span class="live-indicator"></span>
+          <span class="widget-title" data-i18n="home.live_matches">🔴 Live Matches</span>
+        </div>
+        <div id="live-matches-list" class="live-matches-list"></div>
+      </div>
+
+      <!-- Clan Leaderboard Preview -->
+      <div id="clan-preview-widget" class="clan-preview-widget glass" style="display:none">
+        <div class="widget-header">
+          <span class="widget-title" data-i18n="home.top_clans">🏆 Top Clans This Week</span>
+          <button onclick="showTab('clans')" class="widget-link" data-i18n="home.view_all">View All ›</button>
+        </div>
+        <div id="clan-preview-list" class="clan-preview-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== TOURNAMENTS ===== -->
+    <section id="sec-tournaments" class="page-section" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title" data-i18n="tournaments.title">🏆 Tournaments</h2>
+        <button id="btn-new-tournament" onclick="openCreateTournament()" class="arena-btn btn-small" style="display:none">
+          <span data-i18n="tournaments.new">+ New</span>
+        </button>
+      </div>
+      <div id="tournaments-list" class="tournaments-list"></div>
+      <div id="tournaments-skeleton" class="skeleton-container" style="display:none">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+      </div>
+    </section>
+
+    <!-- ===== TOURNAMENT DETAIL ===== -->
+    <section id="sec-tournament-detail" class="page-section" style="display:none">
+      <button onclick="showTab('tournaments')" class="back-btn" data-i18n="common.back">‹ Back</button>
+      <div id="tournament-detail-content"></div>
+    </section>
+
+    <!-- ===== CLANS ===== -->
+    <section id="sec-clans" class="page-section" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title" data-i18n="clans.title">🛡️ Clans</h2>
+        <button id="btn-create-clan" onclick="openCreateClan()" class="arena-btn btn-small">
+          <span data-i18n="clans.create">+ Create Clan</span>
+        </button>
+      </div>
+
+      <!-- My Clan -->
+      <div id="my-clan-section" class="my-clan-section" style="display:none">
+        <div id="my-clan-card" class="clan-card glass"></div>
+      </div>
+
+      <!-- Clan Leaderboard -->
+      <div class="clan-leaderboard-section">
+        <div class="subsection-header">
+          <h3 class="subsection-title" data-i18n="clans.leaderboard">🏆 Clan Leaderboard</h3>
+          <div class="filter-tabs">
+            <button onclick="setClanFilter('week')" id="clan-filter-week" class="filter-tab active" data-i18n="clans.week">Week</button>
+            <button onclick="setClanFilter('month')" id="clan-filter-month" class="filter-tab" data-i18n="clans.month">Month</button>
+            <button onclick="setClanFilter('all')" id="clan-filter-all" class="filter-tab" data-i18n="clans.all_time">All Time</button>
+          </div>
+        </div>
+        <div id="clan-leaderboard-list" class="clan-leaderboard-list"></div>
+      </div>
+
+      <!-- All Clans -->
+      <div class="all-clans-section">
+        <h3 class="subsection-title" data-i18n="clans.all_clans">📋 All Clans</h3>
+        <input type="text" id="clan-search" placeholder="🔎 Search clans..." oninput="filterClans(this.value)" class="search-input">
+        <div id="all-clans-list" class="all-clans-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== CLAN DETAIL ===== -->
+    <section id="sec-clan-detail" class="page-section" style="display:none">
+      <button onclick="showTab('clans')" class="back-btn" data-i18n="common.back">‹ Back</button>
+      <div id="clan-detail-content"></div>
+    </section>
+
+    <!-- ===== FRIENDLY ===== -->
+    <section id="sec-friendly" class="page-section" style="display:none">
+      <div class="friendly-hero glass">
+        <div class="friendly-icon">⚽</div>
+        <h2 class="friendly-title" data-i18n="friendly.title">Friendly Match Now?</h2>
+        <p class="friendly-desc" data-i18n="friendly.desc">Choose an opponent from available players</p>
+      </div>
+      <input type="text" placeholder="🔎 Search for a player..." oninput="filterPlayers(this.value)" class="search-input" data-i18n-placeholder="friendly.search">
+      <h3 class="subsection-title" data-i18n="friendly.available">Available Players 🟢</h3>
+      <div id="friendly-players-list" class="players-list"></div>
+      <div id="friendly-skeleton" class="skeleton-container" style="display:none">
+        <div class="skeleton-player"></div>
+        <div class="skeleton-player"></div>
+        <div class="skeleton-player"></div>
+      </div>
+    </section>
+
+    <!-- ===== FRIENDLY MATCH ===== -->
+    <section id="sec-friendly-match" class="page-section" style="display:none">
+      <button onclick="showTab('friendly')" class="back-btn" data-i18n="common.back">‹ Back</button>
+      <div id="friendly-match-content"></div>
+    </section>
+
+    <!-- ===== LEADERBOARD ===== -->
+    <section id="sec-leaderboard" class="page-section" style="display:none">
+      <h2 class="section-title" data-i18n="leaderboard.title">🏅 Player Ranking</h2>
+      <div class="leaderboard-filters">
+        <button onclick="setLeaderboardFilter('all')" id="lb-filter-all" class="filter-tab active" data-i18n="leaderboard.all">All</button>
+        <button onclick="setLeaderboardFilter('week')" id="lb-filter-week" class="filter-tab" data-i18n="leaderboard.week">Week</button>
+        <button onclick="setLeaderboardFilter('month')" id="lb-filter-month" class="filter-tab" data-i18n="leaderboard.month">Month</button>
+      </div>
+      <div class="leaderboard-table glass">
+        <div class="leaderboard-header">
+          <span>#</span>
+          <span data-i18n="leaderboard.player">Player</span>
+          <span data-i18n="leaderboard.rank">Rank</span>
+          <span class="text-center" data-i18n="leaderboard.wins">W</span>
+          <span class="text-center" data-i18n="leaderboard.losses">L</span>
+          <span class="text-center" data-i18n="leaderboard.points">Pts</span>
+        </div>
+        <div id="leaderboard-list"></div>
+      </div>
+      <div id="leaderboard-skeleton" class="skeleton-container" style="display:none">
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+    </section>
+
+    <!-- ===== MESSAGES ===== -->
+    <section id="sec-messages" class="page-section" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title" data-i18n="messages.title">💬 Messages</h2>
+        <button onclick="openNewMessage()" class="arena-btn btn-small">
+          <span data-i18n="messages.new">+ New</span>
+        </button>
+      </div>
+      <div id="messages-list" class="messages-list"></div>
+      <div id="messages-skeleton" class="skeleton-container" style="display:none">
+        <div class="skeleton-message"></div>
+        <div class="skeleton-message"></div>
+        <div class="skeleton-message"></div>
+      </div>
+    </section>
+
+    <!-- ===== CHAT ===== -->
+    <section id="sec-chat" class="page-section" style="display:none">
+      <div class="chat-header">
+        <button onclick="showTab('messages')" class="back-btn">‹</button>
+        <div id="chat-avatar" class="chat-avatar">
+          <span id="chat-avatar-text">K</span>
+          <img id="chat-avatar-img" class="avatar-img" alt="">
+        </div>
+        <div class="chat-info">
+          <div id="chat-name" class="chat-name">Khaled_Pro</div>
+          <div id="chat-status" class="chat-status" data-i18n="chat.online">Online</div>
+        </div>
+        <div class="chat-actions">
+          <button onclick="toggleChatMenu()" class="chat-menu-btn">⋮</button>
+        </div>
+      </div>
+
+      <!-- Chat Menu -->
+      <div id="chat-menu" class="chat-menu" style="display:none">
+        <button onclick="clearChat()" class="chat-menu-item" data-i18n="chat.clear">🗑️ Clear Chat</button>
+        <button onclick="blockUser()" class="chat-menu-item" data-i18n="chat.block">🚫 Block</button>
+      </div>
+
+      <!-- Voice Recorder -->
+      <div id="voice-recorder-ui" class="voice-recorder" style="display:none">
+        <div class="recorder-display">
+          <div id="rec-timer" class="rec-timer">00:00</div>
+          <div class="rec-indicator"></div>
+          <span class="rec-label" data-i18n="chat.recording">Recording...</span>
+        </div>
+        <div class="recorder-controls">
+          <button onclick="stopVoiceRecording()" class="rec-btn stop-btn">⏹️ <span data-i18n="chat.stop">Stop</span></button>
+          <button onclick="cancelVoiceRecording()" class="rec-btn cancel-btn">❌ <span data-i18n="chat.cancel">Cancel</span></button>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div id="chat-messages" class="chat-messages"></div>
+
+      <!-- Typing Indicator -->
+      <div id="typing-indicator" class="typing-indicator" style="display:none">
+        <span class="typing-text" data-i18n="chat.typing">typing...</span>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="chat-input-area">
+        <input id="chat-media" type="file" accept="image/*" style="display:none" onchange="handleChatMedia(this)">
+        <button onclick="document.getElementById('chat-media').click()" class="chat-tool-btn">📷</button>
+        <button id="voice-btn" onclick="startVoiceRecording()" class="chat-tool-btn">🎤</button>
+        <div class="chat-input-wrapper">
+          <input id="chat-input" type="text" placeholder="Type a message..." class="chat-input" onkeypress="if(event.key==='Enter')sendMessage()">
+          <button onclick="sendMessage()" class="chat-send-btn">📩</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROFILE ===== -->
+    <section id="sec-profile" class="page-section" style="display:none">
+      <div class="profile-card glass">
+        <button onclick="editProfile()" class="profile-edit-btn">✏️ <span data-i18n="profile.edit">Edit</span></button>
+        <div class="profile-avatar-section">
+          <div id="profile-avatar" class="profile-avatar">A</div>
+          <img id="profile-avatar-img" class="profile-avatar-img" alt="">
+        </div>
+        <div id="profile-name" class="profile-name">Ahmed_Player</div>
+        <div id="profile-rank" class="profile-rank">🥇 Gold</div>
+        <div id="profile-verified" class="profile-badge verified">✅ Verified</div>
+        <div id="profile-role" class="profile-badge role" style="display:none"></div>
+
+        <!-- Clan Badge -->
+        <div id="profile-clan" class="profile-clan" style="display:none">
+          <span class="clan-icon">🛡️</span>
+          <span id="profile-clan-name">Clan Name</span>
+        </div>
+
+        <div id="profile-email" class="profile-detail">ahmed@example.com</div>
+        <div id="profile-whatsapp" class="profile-detail"></div>
+        <div id="profile-country" class="profile-detail"></div>
+      </div>
+
+      <!-- Rank Card -->
+      <div id="profile-rank-card" class="rank-card">
+        <div class="rank-card-bg"></div>
+        <span id="profile-rank-icon" class="rank-icon">🥇</span>
+        <div id="profile-rank-text" class="rank-text">GOLD</div>
+        <div id="profile-rank-progress" class="rank-progress-text">245 points • 55 to Diamond</div>
+        <div class="rank-progress-bar">
+          <div id="profile-rank-bar" class="rank-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card glass">
+          <div id="profile-wins" class="stat-value stat-wins">42</div>
+          <div class="stat-label" data-i18n="profile.wins">Wins</div>
+        </div>
+        <div class="stat-card glass">
+          <div id="profile-losses" class="stat-value stat-losses">18</div>
+          <div class="stat-label" data-i18n="profile.losses">Losses</div>
+        </div>
+        <div class="stat-card glass">
+          <div id="profile-points" class="stat-value stat-points">245</div>
+          <div class="stat-label" data-i18n="profile.points">Points</div>
+        </div>
+        <div class="stat-card glass">
+          <div id="profile-goals" class="stat-value stat-goals">156</div>
+          <div class="stat-label" data-i18n="profile.goals">Goals</div>
+        </div>
+      </div>
+
+      <!-- Achievements -->
+      <div class="achievements-section">
+        <h3 class="subsection-title" data-i18n="profile.achievements">🏆 Achievements</h3>
+        <div id="achievements-list" class="achievements-list"></div>
+      </div>
+
+      <!-- Actions -->
+      <button class="arena-btn whatsapp-btn-full" onclick="window.open('https://chat.whatsapp.com/CQUZiyIxktoFkfxOparUk6?s=cl&p=i&ilr=2','_blank')">
+        💬 <span data-i18n="profile.whatsapp">Join WhatsApp Group</span>
+      </button>
+      <button onclick="logout()" class="logout-btn">
+        🚪 <span data-i18n="profile.logout">Logout</span>
+      </button>
+    </section>
+
+    <!-- ===== ADMIN ===== -->
+    <section id="sec-admin" class="page-section" style="display:none">
+      <h2 class="section-title" data-i18n="admin.title">👑 Admin Panel</h2>
+      <div class="admin-tabs">
+        <button id="admin-tab-reports" onclick="showAdminTab('reports')" class="admin-tab active">🚨 <span data-i18n="admin.reports">Reports</span></button>
+        <button id="admin-tab-tournaments" onclick="showAdminTab('tournaments')" class="admin-tab">🏆 <span data-i18n="admin.tournaments">Tournaments</span></button>
+        <button id="admin-tab-users" onclick="showAdminTab('users')" class="admin-tab">👥 <span data-i18n="admin.users">Players</span></button>
+        <button id="admin-tab-clans" onclick="showAdminTab('clans')" class="admin-tab">🛡️ <span data-i18n="admin.clans">Clans</span></button>
+        <button id="admin-tab-messages" onclick="showAdminTab('messages')" class="admin-tab">📨 <span data-i18n="admin.messages">Messages</span></button>
+        <button id="admin-tab-broadcast" onclick="showAdminTab('broadcast')" class="admin-tab">📢 <span data-i18n="admin.broadcast">Broadcast</span></button>
+        <button id="admin-tab-dashboard" onclick="showAdminTab('dashboard')" class="admin-tab">📊 <span data-i18n="admin.dashboard">Dashboard</span></button>
+      </div>
+      <div id="admin-content" class="admin-content"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ==================== NOTIFICATIONS PANEL ==================== -->
+<div id="notif-panel" class="notif-panel" style="display:none">
+  <div class="notif-overlay" onclick="toggleNotif()"></div>
+  <div class="notif-sidebar">
+    <div class="notif-header">
+      <div class="notif-title">🔔 <span data-i18n="notif.title">Notifications</span></div>
+      <button onclick="toggleNotif()" class="notif-close">✕</button>
+    </div>
+    <div id="notif-list" class="notif-list"></div>
+  </div>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div id="modal" class="modal-overlay">
+  <div class="modal-box">
+    <div id="modal-title" class="modal-title"></div>
+    <div id="modal-body" class="modal-body"></div>
+    <div class="modal-actions">
+      <button onclick="closeModal()" class="modal-cancel" data-i18n="common.cancel">Cancel</button>
+      <button id="modal-save" onclick="saveModal()" class="arena-btn modal-save" data-i18n="common.save">Save ✅</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+// ============================================
+// eFootball Arena v3.0 - Internationalization
+// Arabic / English
+// ============================================
+
+const TRANSLATIONS = {
+  ar: {
+    // Auth
+    'auth.subtitle': '🌍 منصة eFootball العالمية',
+    'auth.google': 'المتابعة مع Google',
+    'auth.security.title': '🔒 أمانك يهمنا',
+    'auth.security.text': 'eFootball Arena منصة مرافقة فقط — <span class="highlight">لا نطلب كلمة مرور لعبتك</span>. بياناتك محمية تماماً.',
+    'auth.or_email': 'أو بالإيميل',
+    'auth.login': 'تسجيل الدخول',
+    'auth.register': 'إنشاء حساب',
+    'auth.email': 'البريد الإلكتروني',
+    'auth.password': 'كلمة المرور',
+    'auth.confirm_password': 'تأكيد كلمة المرور',
+    'auth.player_name': 'اسم اللاعب',
+    'auth.whatsapp': 'رقم واتساب',
+    'auth.forgot': 'نسيت كلمة السر؟',
+    'auth.login_btn': 'دخول',
+    'auth.register_btn': 'إنشاء حساب ✅',
+    'auth.whatsapp_group': 'انضم لمجموعة واتساب الرسمية 🏆',
+
+    // Navigation
+    'nav.home': 'الرئيسية',
+    'nav.tournaments': 'البطولات',
+    'nav.clans': 'الرابطات',
+    'nav.friendly': 'ودية',
+    'nav.leaderboard': 'الترتيب',
+    'nav.messages': 'رسائل',
+    'nav.profile': 'بروفايل',
+    'nav.admin': 'الإدارة',
+
+    // Home
+    'home.next_tournament': '⏳ البطولة القادمة تبدأ في',
+    'home.ready': 'جاهز للمنافسة؟',
+    'home.register': 'سجّل في البطولة الرسمية 🥇',
+    'home.clan': 'انضم لرابطة!',
+    'home.clan_desc': 'تعاون مع أفضل اللاعبين 🛡️',
+    'home.looking': 'تبحث على خصم؟',
+    'home.instant': 'مباراة ودية فورية ⚡',
+    'home.results': 'النتائج والترتيب',
+    'home.classement': 'Classement اللاعبين 📊',
+    'home.report': 'بلاغ مباراة 🚨',
+    'home.report_desc': 'ابعث بلاغ للإدارة',
+    'home.live_matches': '🔴 مباريات مباشرة',
+    'home.top_clans': '🏆 أفضل الرابطات هذا الأسبوع',
+    'home.view_all': 'عرض الكل ›',
+
+    // Time
+    'time.days': 'يوم',
+    'time.hours': 'ساعة',
+    'time.minutes': 'دقيقة',
+    'time.seconds': 'ثانية',
+
+    // Tournaments
+    'tournaments.title': '🏆 البطولات',
+    'tournaments.new': '+ جديدة',
+
+    // Clans
+    'clans.title': '🛡️ الرابطات',
+    'clans.create': '+ إنشاء رابطة',
+    'clans.leaderboard': '🏆 ترتيب الرابطات',
+    'clans.week': 'أسبوع',
+    'clans.month': 'شهر',
+    'clans.all_time': 'الكل',
+    'clans.all_clans': '📋 كل الرابطات',
+
+    // Friendly
+    'friendly.title': 'مباراة ودية الآن؟',
+    'friendly.desc': 'اختر خصم من اللاعبين المتاحين',
+    'friendly.search': '🔎 ابحث عن لاعب...',
+    'friendly.available': 'لاعبون متاحون 🟢',
+
+    // Leaderboard
+    'leaderboard.title': '🏅 Classement',
+    'leaderboard.all': 'الكل',
+    'leaderboard.week': 'أسبوع',
+    'leaderboard.month': 'شهر',
+    'leaderboard.player': 'اللاعب',
+    'leaderboard.rank': 'رتبة',
+    'leaderboard.wins': 'ف',
+    'leaderboard.losses': 'خ',
+    'leaderboard.points': 'Pts',
+
+    // Messages
+    'messages.title': '💬 الرسائل',
+    'messages.new': '+ جديدة',
+
+    // Chat
+    'chat.online': 'متصل',
+    'chat.recording': 'جاري التسجيل...',
+    'chat.stop': 'إيقاف',
+    'chat.cancel': 'إلغاء',
+    'chat.typing': 'جاري الكتابة...',
+    'chat.clear': '🗑️ مسح المحادثة',
+    'chat.block': '🚫 حظر',
+
+    // Profile
+    'profile.edit': 'تعديل',
+    'profile.verified': '✅ موثّق',
+    'profile.wins': 'فوز',
+    'profile.losses': 'خسارة',
+    'profile.points': 'نقاط',
+    'profile.goals': 'أهداف',
+    'profile.achievements': '🏆 الإنجازات',
+    'profile.whatsapp': '💬 انضم لمجموعة واتساب',
+    'profile.logout': 'تسجيل الخروج',
+
+    // Admin
+    'admin.title': '👑 لوحة الإدارة',
+    'admin.reports': 'البلاغات',
+    'admin.tournaments': 'البطولات',
+    'admin.users': 'اللاعبون',
+    'admin.clans': 'الرابطات',
+    'admin.messages': 'الرسائل',
+    'admin.broadcast': 'إشعارات',
+    'admin.dashboard': 'لوحة التحكم',
+
+    // Notifications
+    'notif.title': 'الإشعارات',
+
+    // Common
+    'common.back': '‹ رجوع',
+    'common.cancel': 'إلغاء',
+    'common.save': 'حفظ ✅',
+    'common.search': '🔎 بحث...',
+    'common.loading': '⏳ جاري التحميل...',
+    'common.empty': 'لا توجد بيانات',
+    'common.error': '⚠️ خطأ',
+    'common.success': '✅ تم',
+    'common.confirm': 'هل أنت متأكد؟',
+    'common.yes': 'نعم',
+    'common.no': 'لا',
+    'common.close': 'إغلاق',
+    'common.more': 'المزيد',
+    'common.less': 'أقل',
+    'common.all': 'الكل',
+    'common.none': 'لا شيء',
+    'common.select': 'اختر',
+    'common.filter': 'تصفية',
+    'common.sort': 'ترتيب',
+    'common.date': 'تاريخ',
+    'common.time': 'وقت',
+    'common.status': 'الحالة',
+    'common.action': 'إجراء',
+    'common.actions': 'إجراءات',
+    'common.details': 'تفاصيل',
+    'common.edit': 'تعديل',
+    'common.delete': 'حذف',
+    'common.add': 'إضافة',
+    'common.remove': 'إزالة',
+    'common.invite': 'دعوة',
+    'common.join': 'انضمام',
+    'common.leave': 'مغادرة',
+    'common.kick': 'طرد',
+    'common.promote': 'ترقية',
+    'common.demote': 'تنزيل',
+    'common.ban': 'حظر',
+    'common.unban': 'إلغاء الحظر',
+    'common.verify': 'توثيق',
+    'common.unverify': 'إلغاء التوثيق',
+    'common.send': 'إرسال',
+    'common.reply': 'رد',
+    'common.forward': 'إعادة توجيه',
+    'common.copy': 'نسخ',
+    'common.paste': 'لصق',
+    'common.cut': 'قص',
+    'common.undo': 'تراجع',
+    'common.redo': 'إعادة',
+    'common.refresh': 'تحديث',
+    'common.reload': 'إعادة تحميل',
+    'common.retry': 'إعادة المحاولة',
+    'common.cancelled': 'تم الإلغاء',
+    'common.completed': 'تم الانتهاء',
+    'common.pending': 'قيد الانتظار',
+    'common.processing': 'جاري المعالجة',
+    'common.approved': 'تمت الموافقة',
+    'common.rejected': 'تم الرفض',
+    'common.active': 'نشط',
+    'common.inactive': 'غير نشط',
+    'common.online': 'متصل',
+    'common.offline': 'غير متصل',
+    'common.away': 'غائب',
+    'common.busy': 'مشغول',
+    'common.dnd': 'عدم الإزعاج',
+    'common.typing': 'جاري الكتابة...',
+    'common.recording': 'جاري التسجيل...',
+    'common.uploading': 'جاري الرفع...',
+    'common.downloading': 'جاري التحميل...',
+    'common.syncing': 'جاري المزامنة...',
+    'common.connected': 'متصل',
+    'common.disconnected': 'غير متصل',
+    'common.reconnecting': 'إعادة الاتصال...',
+    'common.no_internet': 'لا يوجد اتصال بالإنترنت',
+    'common.check_connection': 'يرجى التحقق من اتصالك بالإنترنت',
+    'common.try_again': 'حاول مرة أخرى',
+    'common.later': 'لاحقاً',
+    'common.now': 'الآن',
+    'common.today': 'اليوم',
+    'common.yesterday': 'أمس',
+    'common.tomorrow': 'غداً',
+    'common.this_week': 'هذا الأسبوع',
+    'common.last_week': 'الأسبوع الماضي',
+    'common.this_month': 'هذا الشهر',
+    'common.last_month': 'الشهر الماضي',
+    'common.this_year': 'هذا العام',
+    'common.last_year': 'العام الماضي',
+    'common.just_now': 'الآن',
+    'common.minutes_ago': 'دقائق مضت',
+    'common.hours_ago': 'ساعات مضت',
+    'common.days_ago': 'أيام مضت',
+    'common.weeks_ago': 'أسابيع مضت',
+    'common.months_ago': 'أشهر مضت',
+    'common.years_ago': 'سنوات مضت',
+
+    // Clan specific
+    'clan.my_clan': 'رابطتي',
+    'clan.no_clan': 'أنت لست عضو في أي رابطة',
+    'clan.create_clan': 'إنشاء رابطة جديدة',
+    'clan.clan_name': 'اسم الرابطة',
+    'clan.clan_tag': 'رمز الرابطة',
+    'clan.clan_description': 'وصف الرابطة',
+    'clan.clan_logo': 'شعار الرابطة',
+    'clan.max_members': 'الحد الأقصى للأعضاء',
+    'clan.members': 'الأعضاء',
+    'clan.leader': 'القائد',
+    'clan.deputy': 'النائب',
+    'clan.member': 'عضو',
+    'clan.join_requests': 'طلبات الانضمام',
+    'clan.invite_players': 'دعوة لاعبين',
+    'clan.leave_clan': 'مغادرة الرابطة',
+    'clan.leave_confirm': 'هل أنت متأكد من مغادرة الرابطة؟ لا يمكنك الانضمام لرابطة أخرى قبل 24 ساعة.',
+    'clan.kick_confirm': 'هل أنت متأكد من طرد هذا العضو؟',
+    'clan.promote_confirm': 'هل أنت متأكد من ترقية هذا الععضو لنائب؟',
+    'clan.demote_confirm': 'هل أنت متأكد من تنزيل هذا النائب؟',
+    'clan.war_declare': 'إعلان حرب',
+    'clan.war_challenge': 'تحدي رابطة',
+    'clan.war_accept': 'قبول التحدي',
+    'clan.war_reject': 'رفض التحدي',
+    'clan.war_history': 'تاريخ الحروب',
+    'clan.points': 'نقاط الرابطة',
+    'clan.wins': 'انتصارات',
+    'clan.losses': 'هزائم',
+    'clan.win_rate': 'نسبة الفوز',
+    'clan.streak': 'سلسلة انتصارات',
+    'clan.best_streak': 'أفضل سلسلة',
+    'clan.mvp': 'أفضل لاعب',
+    'clan.top_scorer': 'أفضل هداف',
+    'clan.most_active': 'الأكثر نشاطاً',
+    'clan.newest_member': 'أحدث عضو',
+
+    // Achievements
+    'achievement.first_win': 'أول فوز',
+    'achievement.first_loss': 'أول خسارة',
+    'achievement.win_streak_3': '3 انتصارات متتالية',
+    'achievement.win_streak_5': '5 انتصارات متتالية',
+    'achievement.win_streak_10': '10 انتصارات متتالية',
+    'achievement.100_goals': '100 هدف',
+    'achievement.500_goals': '500 هدف',
+    'achievement.1000_goals': '1000 هدف',
+    'achievement.tournament_winner': 'بطل البطولة',
+    'achievement.tournament_participant': 'مشارك في البطولة',
+    'achievement.clan_member': 'عضو رابطة',
+    'achievement.clan_leader': 'قائد رابطة',
+    'achievement.verified': 'حساب موثّق',
+    'achievement.social_butterfly': 'اجتماعي',
+    'achievement.veteran': 'محارب قديم',
+    'achievement.legend': 'أسطورة',
+
+    // Tournament
+    'tournament.name': 'اسم البطولة',
+    'tournament.description': 'الوصف',
+    'tournament.max_players': 'عدد اللاعبين',
+    'tournament.start_date': 'تاريخ البدء',
+    'tournament.entry_fee': 'رسوم المشاركة',
+    'tournament.prize_pool': 'جائزة الفائز',
+    'tournament.status': 'الحالة',
+    'tournament.register': 'سجّل',
+    'tournament.registered': 'مسجل',
+    'tournament.full': 'ممتلئة',
+    'tournament.bracket': 'جدول المباريات',
+    'tournament.round': 'الجولة',
+    'tournament.quarter_final': 'ربع النهائي',
+    'tournament.semi_final': 'نصف النهائي',
+    'tournament.final': 'النهائي',
+    'tournament.champion': 'البطل',
+    'tournament.runner_up': 'الوصيف',
+    'tournament.third_place': 'المركز الثالث',
+
+    // Match
+    'match.score': 'النتيجة',
+    'match.result': 'النتيجة',
+    'match.win': 'فوز',
+    'match.loss': 'خسارة',
+    'match.draw': 'تعادل',
+    'match.my_score': 'نقاطي',
+    'match.opponent_score': 'نقاط الخصم',
+    'match.confirm': 'تأكيد النتيجة',
+    'match.friendly_note': 'المباريات الودية لا تؤثر على نقاطك أو رتبتك — للمتعة فقط 🎮',
+    'match.report': 'الإبلاغ عن مباراة',
+    'match.reason': 'السبب',
+    'match.evidence': 'الدليل',
+    'match.submit': 'إرسال',
+
+    // Settings
+    'settings.title': 'الإعدادات',
+    'settings.language': 'اللغة',
+    'settings.theme': 'المظهر',
+    'settings.dark_mode': 'الوضع الداكن',
+    'settings.light_mode': 'الوضع الفاتح',
+    'settings.system': 'حسب النظام',
+    'settings.notifications': 'الإشعارات',
+    'settings.sound': 'الصوت',
+    'settings.vibration': 'الاهتزاز',
+    'settings.privacy': 'الخصوصية',
+    'settings.account': 'الحساب',
+    'settings.security': 'الأمان',
+    'settings.data_usage': 'استهلاك البيانات',
+    'settings.about': 'عن التطبيق',
+    'settings.help': 'المساعدة',
+    'settings.feedback': 'الملاحظات',
+    'settings.version': 'الإصدار',
+    'settings.terms': 'شروط الاستخدام',
+    'settings.privacy_policy': 'سياسة الخصوصية',
+
+    // Errors
+    'error.required': 'هذا الحقل مطلوب',
+    'error.invalid_email': 'بريد إلكتروني غير صحيح',
+    'error.invalid_password': 'كلمة مرور غير صحيحة',
+    'error.password_match': 'كلمات المرور غير متطابقة',
+    'error.password_length': 'كلمة المرور قصيرة جداً',
+    'error.invalid_phone': 'رقم هاتف غير صحيح',
+    'error.taken_email': 'هذا البريد مستخدم بالفعل',
+    'error.taken_name': 'هذا الاسم مستخدم بالفعل',
+    'error.taken_clan': 'هذا الاسم مستخدم بالفعل',
+    'error.no_connection': 'لا يوجد اتصال بالإنترنت',
+    'error.server': 'خطأ في الخادم',
+    'error.unauthorized': 'غير مصرح',
+    'error.forbidden': 'غير مسموح',
+    'error.not_found': 'غير موجود',
+    'error.timeout': 'انتهت المهلة',
+    'error.unknown': 'خطأ غير معروف',
+
+    // Success
+    'success.registered': 'تم إنشاء الحساب بنجاح',
+    'success.logged_in': 'تم تسجيل الدخول بنجاح',
+    'success.logged_out': 'تم تسجيل الخروج بنجاح',
+    'success.updated': 'تم التحديث بنجاح',
+    'success.deleted': 'تم الحذف بنجاح',
+    'success.sent': 'تم الإرسال بنجاح',
+    'success.joined': 'تم الانضمام بنجاح',
+    'success.left': 'تم المغادرة بنجاح',
+    'success.created': 'تم الإنشاء بنجاح',
+    'success.invited': 'تم إرسال الدعوة بنجاح',
+    'success.kicked': 'تم الطرد بنجاح',
+    'success.promoted': 'تم الترقية بنجاح',
+    'success.demoted': 'تم التنزيل بنجاح',
+    'success.banned': 'تم الحظر بنجاح',
+    'success.unbanned': 'تم إلغاء الحظر بنجاح',
+    'success.verified': 'تم التوثيق بنجاح',
+    'success.unverified': 'تم إلغاء التوثيق بنجاح',
+  },
+
+  en: {
+    // Auth
+    'auth.subtitle': '🌍 Global eFootball Platform',
+    'auth.google': 'Continue with Google',
+    'auth.security.title': '🔒 Your security matters',
+    'auth.security.text': 'eFootball Arena is a companion platform only — <span class="highlight">we never ask for your game password</span>. Your data is fully protected.',
+    'auth.or_email': 'Or with email',
+    'auth.login': 'Login',
+    'auth.register': 'Register',
+    'auth.email': 'Email',
+    'auth.password': 'Password',
+    'auth.confirm_password': 'Confirm Password',
+    'auth.player_name': 'Player Name',
+    'auth.whatsapp': 'WhatsApp Number',
+    'auth.forgot': 'Forgot password?',
+    'auth.login_btn': 'Login',
+    'auth.register_btn': 'Create Account ✅',
+    'auth.whatsapp_group': 'Join Official WhatsApp Group 🏆',
+
+    // Navigation
+    'nav.home': 'Home',
+    'nav.tournaments': 'Tournaments',
+    'nav.clans': 'Clans',
+    'nav.friendly': 'Friendly',
+    'nav.leaderboard': 'Ranking',
+    'nav.messages': 'Messages',
+    'nav.profile': 'Profile',
+    'nav.admin': 'Admin',
+
+    // Home
+    'home.next_tournament': '⏳ Next tournament starts in',
+    'home.ready': 'Ready to compete?',
+    'home.register': 'Register for the official tournament 🥇',
+    'home.clan': 'Join a Clan!',
+    'home.clan_desc': 'Team up with the best players 🛡️',
+    'home.looking': 'Looking for an opponent?',
+    'home.instant': 'Instant friendly match ⚡',
+    'home.results': 'Results & Rankings',
+    'home.classement': 'Player Classement 📊',
+    'home.report': 'Match Report 🚨',
+    'home.report_desc': 'Send a report to admin',
+    'home.live_matches': '🔴 Live Matches',
+    'home.top_clans': '🏆 Top Clans This Week',
+    'home.view_all': 'View All ›',
+
+    // Time
+    'time.days': 'Days',
+    'time.hours': 'Hours',
+    'time.minutes': 'Minutes',
+    'time.seconds': 'Seconds',
+
+    // Tournaments
+    'tournaments.title': '🏆 Tournaments',
+    'tournaments.new': '+ New',
+
+    // Clans
+    'clans.title': '🛡️ Clans',
+    'clans.create': '+ Create Clan',
+    'clans.leaderboard': '🏆 Clan Leaderboard',
+    'clans.week': 'Week',
+    'clans.month': 'Month',
+    'clans.all_time': 'All Time',
+    'clans.all_clans': '📋 All Clans',
+
+    // Friendly
+    'friendly.title': 'Friendly Match Now?',
+    'friendly.desc': 'Choose an opponent from available players',
+    'friendly.search': '🔎 Search for a player...',
+    'friendly.available': 'Available Players 🟢',
+
+    // Leaderboard
+    'leaderboard.title': '🏅 Player Ranking',
+    'leaderboard.all': 'All',
+    'leaderboard.week': 'Week',
+    'leaderboard.month': 'Month',
+    'leaderboard.player': 'Player',
+    'leaderboard.rank': 'Rank',
+    'leaderboard.wins': 'W',
+    'leaderboard.losses': 'L',
+    'leaderboard.points': 'Pts',
+
+    // Messages
+    'messages.title': '💬 Messages',
+    'messages.new': '+ New',
+
+    // Chat
+    'chat.online': 'Online',
+    'chat.recording': 'Recording...',
+    'chat.stop': 'Stop',
+    'chat.cancel': 'Cancel',
+    'chat.typing': 'typing...',
+    'chat.clear': '🗑️ Clear Chat',
+    'chat.block': '🚫 Block',
+
+    // Profile
+    'profile.edit': 'Edit',
+    'profile.verified': '✅ Verified',
+    'profile.wins': 'Wins',
+    'profile.losses': 'Losses',
+    'profile.points': 'Points',
+    'profile.goals': 'Goals',
+    'profile.achievements': '🏆 Achievements',
+    'profile.whatsapp': '💬 Join WhatsApp Group',
+    'profile.logout': 'Logout',
+
+    // Admin
+    'admin.title': '👑 Admin Panel',
+    'admin.reports': 'Reports',
+    'admin.tournaments': 'Tournaments',
+    'admin.users': 'Players',
+    'admin.clans': 'Clans',
+    'admin.messages': 'Messages',
+    'admin.broadcast': 'Broadcast',
+    'admin.dashboard': 'Dashboard',
+
+    // Notifications
+    'notif.title': 'Notifications',
+
+    // Common
+    'common.back': '‹ Back',
+    'common.cancel': 'Cancel',
+    'common.save': 'Save ✅',
+    'common.search': '🔎 Search...',
+    'common.loading': '⏳ Loading...',
+    'common.empty': 'No data',
+    'common.error': '⚠️ Error',
+    'common.success': '✅ Done',
+    'common.confirm': 'Are you sure?',
+    'common.yes': 'Yes',
+    'common.no': 'No',
+    'common.close': 'Close',
+    'common.more': 'More',
+    'common.less': 'Less',
+    'common.all': 'All',
+    'common.none': 'None',
+    'common.select': 'Select',
+    'common.filter': 'Filter',
+    'common.sort': 'Sort',
+    'common.date': 'Date',
+    'common.time': 'Time',
+    'common.status': 'Status',
+    'common.action': 'Action',
+    'common.actions': 'Actions',
+    'common.details': 'Details',
+    'common.edit': 'Edit',
+    'common.delete': 'Delete',
+    'common.add': 'Add',
+    'common.remove': 'Remove',
+    'common.invite': 'Invite',
+    'common.join': 'Join',
+    'common.leave': 'Leave',
+    'common.kick': 'Kick',
+    'common.promote': 'Promote',
+    'common.demote': 'Demote',
+    'common.ban': 'Ban',
+    'common.unban': 'Unban',
+    'common.verify': 'Verify',
+    'common.unverify': 'Unverify',
+    'common.send': 'Send',
+    'common.reply': 'Reply',
+    'common.forward': 'Forward',
+    'common.copy': 'Copy',
+    'common.paste': 'Paste',
+    'common.cut': 'Cut',
+    'common.undo': 'Undo',
+    'common.redo': 'Redo',
+    'common.refresh': 'Refresh',
+    'common.reload': 'Reload',
+    'common.retry': 'Retry',
+    'common.cancelled': 'Cancelled',
+    'common.completed': 'Completed',
+    'common.pending': 'Pending',
+    'common.processing': 'Processing',
+    'common.approved': 'Approved',
+    'common.rejected': 'Rejected',
+    'common.active': 'Active',
+    'common.inactive': 'Inactive',
+    'common.online': 'Online',
+    'common.offline': 'Offline',
+    'common.away': 'Away',
+    'common.busy': 'Busy',
+    'common.dnd': 'Do Not Disturb',
+    'common.typing': 'typing...',
+    'common.recording': 'Recording...',
+    'common.uploading': 'Uploading...',
+    'common.downloading': 'Downloading...',
+    'common.syncing': 'Syncing...',
+    'common.connected': 'Connected',
+    'common.disconnected': 'Disconnected',
+    'common.reconnecting': 'Reconnecting...',
+    'common.no_internet': 'No internet connection',
+    'common.check_connection': 'Please check your internet connection',
+    'common.try_again': 'Try again',
+    'common.later': 'Later',
+    'common.now': 'Now',
+    'common.today': 'Today',
+    'common.yesterday': 'Yesterday',
+    'common.tomorrow': 'Tomorrow',
+    'common.this_week': 'This week',
+    'common.last_week': 'Last week',
+    'common.this_month': 'This month',
+    'common.last_month': 'Last month',
+    'common.this_year': 'This year',
+    'common.last_year': 'Last year',
+    'common.just_now': 'Just now',
+    'common.minutes_ago': 'minutes ago',
+    'common.hours_ago': 'hours ago',
+    'common.days_ago': 'days ago',
+    'common.weeks_ago': 'weeks ago',
+    'common.months_ago': 'months ago',
+    'common.years_ago': 'years ago',
+
+    // Clan specific
+    'clan.my_clan': 'My Clan',
+    'clan.no_clan': 'You are not a member of any clan',
+    'clan.create_clan': 'Create New Clan',
+    'clan.clan_name': 'Clan Name',
+    'clan.clan_tag': 'Clan Tag',
+    'clan.clan_description': 'Clan Description',
+    'clan.clan_logo': 'Clan Logo',
+    'clan.max_members': 'Max Members',
+    'clan.members': 'Members',
+    'clan.leader': 'Leader',
+    'clan.deputy': 'Deputy',
+    'clan.member': 'Member',
+    'clan.join_requests': 'Join Requests',
+    'clan.invite_players': 'Invite Players',
+    'clan.leave_clan': 'Leave Clan',
+    'clan.leave_confirm': 'Are you sure you want to leave the clan? You cannot join another clan for 24 hours.',
+    'clan.kick_confirm': 'Are you sure you want to kick this member?',
+    'clan.promote_confirm': 'Are you sure you want to promote this member to deputy?',
+    'clan.demote_confirm': 'Are you sure you want to demote this deputy?',
+    'clan.war_declare': 'Declare War',
+    'clan.war_challenge': 'Challenge Clan',
+    'clan.war_accept': 'Accept Challenge',
+    'clan.war_reject': 'Reject Challenge',
+    'clan.war_history': 'War History',
+    'clan.points': 'Clan Points',
+    'clan.wins': 'Wins',
+    'clan.losses': 'Losses',
+    'clan.win_rate': 'Win Rate',
+    'clan.streak': 'Win Streak',
+    'clan.best_streak': 'Best Streak',
+    'clan.mvp': 'MVP',
+    'clan.top_scorer': 'Top Scorer',
+    'clan.most_active': 'Most Active',
+    'clan.newest_member': 'Newest Member',
+
+    // Achievements
+    'achievement.first_win': 'First Win',
+    'achievement.first_loss': 'First Loss',
+    'achievement.win_streak_3': '3 Win Streak',
+    'achievement.win_streak_5': '5 Win Streak',
+    'achievement.win_streak_10': '10 Win Streak',
+    'achievement.100_goals': '100 Goals',
+    'achievement.500_goals': '500 Goals',
+    'achievement.1000_goals': '1000 Goals',
+    'achievement.tournament_winner': 'Tournament Champion',
+    'achievement.tournament_participant': 'Tournament Participant',
+    'achievement.clan_member': 'Clan Member',
+    'achievement.clan_leader': 'Clan Leader',
+    'achievement.verified': 'Verified Account',
+    'achievement.social_butterfly': 'Social Butterfly',
+    'achievement.veteran': 'Veteran',
+    'achievement.legend': 'Legend',
+
+    // Tournament
+    'tournament.name': 'Tournament Name',
+    'tournament.description': 'Description',
+    'tournament.max_players': 'Max Players',
+    'tournament.start_date': 'Start Date',
+    'tournament.entry_fee': 'Entry Fee',
+    'tournament.prize_pool': 'Prize Pool',
+    'tournament.status': 'Status',
+    'tournament.register': 'Register',
+    'tournament.registered': 'Registered',
+    'tournament.full': 'Full',
+    'tournament.bracket': 'Bracket',
+    'tournament.round': 'Round',
+    'tournament.quarter_final': 'Quarter Final',
+    'tournament.semi_final': 'Semi Final',
+    'tournament.final': 'Final',
+    'tournament.champion': 'Champion',
+    'tournament.runner_up': 'Runner Up',
+    'tournament.third_place': 'Third Place',
+
+    // Match
+    'match.score': 'Score',
+    'match.result': 'Result',
+    'match.win': 'Win',
+    'match.loss': 'Loss',
+    'match.draw': 'Draw',
+    'match.my_score': 'My Score',
+    'match.opponent_score': 'Opponent Score',
+    'match.confirm': 'Confirm Result',
+    'match.friendly_note': 'Friendly matches do not affect your points or rank — for fun only 🎮',
+    'match.report': 'Report Match',
+    'match.reason': 'Reason',
+    'match.evidence': 'Evidence',
+    'match.submit': 'Submit',
+
+    // Settings
+    'settings.title': 'Settings',
+    'settings.language': 'Language',
+    'settings.theme': 'Theme',
+    'settings.dark_mode': 'Dark Mode',
+    'settings.light_mode': 'Light Mode',
+    'settings.system': 'System Default',
+    'settings.notifications': 'Notifications',
+    'settings.sound': 'Sound',
+    'settings.vibration': 'Vibration',
+    'settings.privacy': 'Privacy',
+    'settings.account': 'Account',
+    'settings.security': 'Security',
+    'settings.data_usage': 'Data Usage',
+    'settings.about': 'About',
+    'settings.help': 'Help',
+    'settings.feedback': 'Feedback',
+    'settings.version': 'Version',
+    'settings.terms': 'Terms of Use',
+    'settings.privacy_policy': 'Privacy Policy',
+
+    // Errors
+    'error.required': 'This field is required',
+    'error.invalid_email': 'Invalid email address',
+    'error.invalid_password': 'Invalid password',
+    'error.password_match': 'Passwords do not match',
+    'error.password_length': 'Password is too short',
+    'error.invalid_phone': 'Invalid phone number',
+    'error.taken_email': 'This email is already taken',
+    'error.taken_name': 'This name is already taken',
+    'error.taken_clan': 'This clan name is already taken',
+    'error.no_connection': 'No internet connection',
+    'error.server': 'Server error',
+    'error.unauthorized': 'Unauthorized',
+    'error.forbidden': 'Forbidden',
+    'error.not_found': 'Not found',
+    'error.timeout': 'Request timed out',
+    'error.unknown': 'Unknown error',
+
+    // Success
+    'success.registered': 'Account created successfully',
+    'success.logged_in': 'Logged in successfully',
+    'success.logged_out': 'Logged out successfully',
+    'success.updated': 'Updated successfully',
+    'success.deleted': 'Deleted successfully',
+    'success.sent': 'Sent successfully',
+    'success.joined': 'Joined successfully',
+    'success.left': 'Left successfully',
+    'success.created': 'Created successfully',
+    'success.invited': 'Invitation sent successfully',
+    'success.kicked': 'Kicked successfully',
+    'success.promoted': 'Promoted successfully',
+    'success.demoted': 'Demoted successfully',
+    'success.banned': 'Banned successfully',
+    'success.unbanned': 'Unbanned successfully',
+    'success.verified': 'Verified successfully',
+    'success.unverified': 'Unverified successfully',
+  }
+};
+
+// ============================================
+// I18N Manager
+// ============================================
+
+const I18N = {
+  currentLang: 'ar',
+
+  init() {
+    const saved = localStorage.getItem('efa_lang');
+    if (saved && TRANSLATIONS[saved]) {
+      this.currentLang = saved;
+    }
+    this.apply();
+  },
+
+  setLang(lang) {
+    if (!TRANSLATIONS[lang]) return;
+    this.currentLang = lang;
+    localStorage.setItem('efa_lang', lang);
+    this.apply();
+  },
+
+  toggle() {
+    const newLang = this.currentLang === 'ar' ? 'en' : 'ar';
+    this.setLang(newLang);
+    return newLang;
+  },
+
+  t(key, replacements = {}) {
+    let text = TRANSLATIONS[this.currentLang]?.[key] || TRANSLATIONS['en']?.[key] || key;
+
+    // Replace placeholders
+    for (const [placeholder, value] of Object.entries(replacements)) {
+      text = text.replace(`{${placeholder}}`, value);
+    }
+
+    return text;
+  },
+
+  apply() {
+    // Update HTML dir and lang
+    document.documentElement.lang = this.currentLang;
+    document.documentElement.dir = this.currentLang === 'ar' ? 'rtl' : 'ltr';
+
+    // Update all elements with data-i18n
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key) {
+        const translated = this.t(key);
+        // Preserve HTML in translation
+        if (translated.includes('<')) {
+          el.innerHTML = translated;
+        } else {
+          el.textContent = translated;
+        }
+      }
+    });
+
+    // Update placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (key) {
+        el.placeholder = this.t(key);
+      }
+    });
+
+    // Update lang toggle button
+    const langToggle = document.getElementById('lang-text');
+    if (langToggle) {
+      langToggle.textContent = this.currentLang === 'ar' ? 'EN' : 'AR';
+    }
+
+    // Update page title
+    const titleMap = {
+      'ar': 'eFootball Arena | منصة eFootball العالمية',
+      'en': 'eFootball Arena | Global eFootball Platform'
+    };
+    document.title = titleMap[this.currentLang] || titleMap['en'];
+
+    // Fire event
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: this.currentLang } }));
+  },
+
+  // Format numbers based on locale
+  formatNumber(num) {
+    return new Intl.NumberFormat(this.currentLang === 'ar' ? 'ar-SA' : 'en-US').format(num);
+  },
+
+  // Format dates based on locale
+  formatDate(date) {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-SA' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(new Date(date));
+  },
+
+  // Format relative time
+  formatRelativeTime(date) {
+    const now = new Date();
+    const then = new Date(date);
+    const diff = Math.floor((now - then) / 1000);
+
+    const rtf = new Intl.RelativeTimeFormat(this.currentLang === 'ar' ? 'ar' : 'en', { numeric: 'auto' });
+
+    if (diff < 60) return rtf.format(-diff, 'second');
+    if (diff < 3600) return rtf.format(-Math.floor(diff / 60), 'minute');
+    if (diff < 86400) return rtf.format(-Math.floor(diff / 3600), 'hour');
+    if (diff < 604800) return rtf.format(-Math.floor(diff / 86400), 'day');
+    if (diff < 2592000) return rtf.format(-Math.floor(diff / 604800), 'week');
+    if (diff < 31536000) return rtf.format(-Math.floor(diff / 2592000), 'month');
+    return rtf.format(-Math.floor(diff / 31536000), 'year');
+  }
+};
+
+// Global function for easy access
+function t(key, replacements) {
+  return I18N.t(key, replacements);
+}
+
+function toggleLanguage() {
+  const newLang = I18N.toggle();
+  showToast(newLang === 'ar' ? '🇦🇪 العربية' : '🇬🇧 English', 'info');
+}
+
+// Initialize on load
+window.addEventListener('DOMContentLoaded', () => {
+  I18N.init();
+});
+
+</script>
+<script>
+// ============================================
+// eFootball Arena v3.0 - State Management (Store Pattern)
+// ============================================
+
+class Store {
+  constructor() {
+    this.state = {
+      // Auth
+      currentUser: null,
+      isAuthenticated: false,
+      isLoading: true,
+
+      // UI
+      currentTab: 'home',
+      previousTab: null,
+      isOnline: navigator.onLine,
+      theme: localStorage.getItem('efa_theme') || 'dark',
+      language: localStorage.getItem('efa_lang') || 'ar',
+
+      // Data
+      users: [],
+      tournaments: [],
+      clans: [],
+      messages: [],
+      notifications: [],
+      reports: [],
+      matches: [],
+
+      // Cache
+      usersCache: null,
+      tournamentsCache: null,
+      clansCache: null,
+      messagesCache: null,
+      leaderboardCache: null,
+
+      // Cache timestamps
+      cacheTimestamps: {},
+
+      // Realtime
+      realtimeChannels: {},
+      onlineUsers: new Set(),
+
+      // Current selections
+      currentChatUser: null,
+      currentTournament: null,
+      currentClan: null,
+      currentFriendlyOpponent: null,
+      currentReportId: null,
+
+      // UI State
+      modalOpen: false,
+      notifOpen: false,
+      chatMenuOpen: false,
+      voiceRecording: false,
+
+      // Loading states
+      loadingStates: {
+        tournaments: false,
+        clans: false,
+        messages: false,
+        leaderboard: false,
+        friendly: false,
+        profile: false,
+        admin: false
+      },
+
+      // Filters
+      filters: {
+        clanLeaderboard: 'week',
+        playerLeaderboard: 'all',
+        tournamentStatus: 'all'
+      },
+
+      // Search
+      searchQuery: '',
+
+      // Pagination
+      pagination: {
+        tournaments: { page: 1, limit: 20 },
+        clans: { page: 1, limit: 20 },
+        messages: { page: 1, limit: 50 },
+        leaderboard: { page: 1, limit: 50 }
+      }
+    };
+
+    this.listeners = new Map();
+    this.subscribers = new Map();
+  }
+
+  // ============================================
+  // GETTERS
+  // ============================================
+
+  get(key) {
+    return this._getNestedValue(this.state, key);
+  }
+
+  _getNestedValue(obj, path) {
+    return path.split('.').reduce((current, key) => current?.[key], obj);
+  }
+
+  // ============================================
+  // SETTERS
+  // ============================================
+
+  set(key, value) {
+    const oldValue = this._getNestedValue(this.state, key);
+    this._setNestedValue(this.state, key, value);
+    this._notify(key, value, oldValue);
+  }
+
+  _setNestedValue(obj, path, value) {
+    const keys = path.split('.');
+    const lastKey = keys.pop();
+    const target = keys.reduce((current, key) => {
+      if (!current[key]) current[key] = {};
+      return current[key];
+    }, obj);
+    target[lastKey] = value;
+  }
+
+  // ============================================
+  // BATCH UPDATES
+  // ============================================
+
+  batch(updates) {
+    const changed = [];
+    for (const [key, value] of Object.entries(updates)) {
+      const oldValue = this._getNestedValue(this.state, key);
+      this._setNestedValue(this.state, key, value);
+      if (oldValue !== value) {
+        changed.push({ key, value, oldValue });
+      }
+    }
+    changed.forEach(({ key, value, oldValue }) => this._notify(key, value, oldValue));
+  }
+
+  // ============================================
+  // SUBSCRIPTION / LISTENERS
+  // ============================================
+
+  subscribe(key, callback) {
+    if (!this.subscribers.has(key)) {
+      this.subscribers.set(key, new Set());
+    }
+    this.subscribers.get(key).add(callback);
+
+    // Return unsubscribe function
+    return () => {
+      this.subscribers.get(key)?.delete(callback);
+    };
+  }
+
+  _notify(key, value, oldValue) {
+    // Notify exact key subscribers
+    this.subscribers.get(key)?.forEach(cb => cb(value, oldValue, key));
+
+    // Notify wildcard subscribers
+    this.subscribers.get('*')?.forEach(cb => cb(value, oldValue, key));
+
+    // Notify parent key subscribers
+    const parentKey = key.split('.').slice(0, -1).join('.');
+    if (parentKey) {
+      this.subscribers.get(parentKey)?.forEach(cb => cb(this._getNestedValue(this.state, parentKey), null, key));
+    }
+  }
+
+  // ============================================
+  // COMPUTED / DERIVED STATE
+  // ============================================
+
+  computed(key, computeFn) {
+    const computedValue = computeFn(this.state);
+    this.subscribe('*', () => {
+      const newValue = computeFn(this.state);
+      this._notify(key, newValue, computedValue);
+    });
+    return computedValue;
+  }
+
+  // ============================================
+  // ACTIONS
+  // ============================================
+
+  // Auth Actions
+  setUser(user) {
+    this.batch({
+      'currentUser': user,
+      'isAuthenticated': !!user,
+      'isLoading': false
+    });
+  }
+
+  clearUser() {
+    this.batch({
+      'currentUser': null,
+      'isAuthenticated': false,
+      'currentChatUser': null,
+      'currentTournament': null,
+      'currentClan': null
+    });
+  }
+
+  // UI Actions
+  setTab(tab) {
+    this.set('previousTab', this.state.currentTab);
+    this.set('currentTab', tab);
+  }
+
+  setOnline(status) {
+    this.set('isOnline', status);
+  }
+
+  setTheme(theme) {
+    this.set('theme', theme);
+    localStorage.setItem('efa_theme', theme);
+  }
+
+  setLanguage(lang) {
+    this.set('language', lang);
+    localStorage.setItem('efa_lang', lang);
+  }
+
+  // Loading Actions
+  setLoading(key, status) {
+    this.set(`loadingStates.${key}`, status);
+  }
+
+  // Data Actions
+  setUsers(users) {
+    this.set('users', users);
+    this.set('usersCache', users);
+    this.set('cacheTimestamps.users', Date.now());
+  }
+
+  setTournaments(tournaments) {
+    this.set('tournaments', tournaments);
+    this.set('tournamentsCache', tournaments);
+    this.set('cacheTimestamps.tournaments', Date.now());
+  }
+
+  setClans(clans) {
+    this.set('clans', clans);
+    this.set('clansCache', clans);
+    this.set('cacheTimestamps.clans', Date.now());
+  }
+
+  setMessages(messages) {
+    this.set('messages', messages);
+    this.set('messagesCache', messages);
+    this.set('cacheTimestamps.messages', Date.now());
+  }
+
+  addMessage(message) {
+    const messages = [...this.state.messages, message];
+    this.setMessages(messages);
+  }
+
+  updateMessage(id, updates) {
+    const messages = this.state.messages.map(m => m.id === id ? { ...m, ...updates } : m);
+    this.setMessages(messages);
+  }
+
+  setNotifications(notifications) {
+    this.set('notifications', notifications);
+  }
+
+  addNotification(notification) {
+    const notifications = [notification, ...this.state.notifications];
+    this.setNotifications(notifications);
+  }
+
+  markNotificationRead(id) {
+    const notifications = this.state.notifications.map(n => 
+      n.id === id ? { ...n, read: true } : n
+    );
+    this.setNotifications(notifications);
+  }
+
+  // Cache Management
+  isCacheValid(key, maxAge = 300000) { // 5 minutes default
+    const timestamp = this.state.cacheTimestamps[key];
+    if (!timestamp) return false;
+    return Date.now() - timestamp < maxAge;
+  }
+
+  getCachedData(key) {
+    if (this.isCacheValid(key)) {
+      return this.state[`${key}Cache`];
+    }
+    return null;
+  }
+
+  invalidateCache(key) {
+    this.set(`cacheTimestamps.${key}`, 0);
+  }
+
+  invalidateAllCache() {
+    this.set('cacheTimestamps', {});
+  }
+
+  // Realtime Actions
+  addChannel(name, channel) {
+    const channels = { ...this.state.realtimeChannels, [name]: channel };
+    this.set('realtimeChannels', channels);
+  }
+
+  removeChannel(name) {
+    const channels = { ...this.state.realtimeChannels };
+    delete channels[name];
+    this.set('realtimeChannels', channels);
+  }
+
+  setOnlineUsers(users) {
+    this.set('onlineUsers', new Set(users));
+  }
+
+  addOnlineUser(userId) {
+    const users = new Set(this.state.onlineUsers);
+    users.add(userId);
+    this.set('onlineUsers', users);
+  }
+
+  removeOnlineUser(userId) {
+    const users = new Set(this.state.onlineUsers);
+    users.delete(userId);
+    this.set('onlineUsers', users);
+  }
+
+  // Filter Actions
+  setFilter(key, value) {
+    this.set(`filters.${key}`, value);
+  }
+
+  // Pagination Actions
+  setPage(key, page) {
+    this.set(`pagination.${key}.page`, page);
+  }
+
+  // Search
+  setSearchQuery(query) {
+    this.set('searchQuery', query);
+  }
+
+  // Modal Actions
+  openModal() {
+    this.set('modalOpen', true);
+  }
+
+  closeModal() {
+    this.set('modalOpen', false);
+  }
+
+  // Notification Panel
+  toggleNotif() {
+    this.set('notifOpen', !this.state.notifOpen);
+  }
+
+  // Chat Menu
+  toggleChatMenu() {
+    this.set('chatMenuOpen', !this.state.chatMenuOpen);
+  }
+
+  // Voice Recording
+  setVoiceRecording(recording) {
+    this.set('voiceRecording', recording);
+  }
+
+  // ============================================
+  // SELECTORS (Computed-like getters)
+  // ============================================
+
+  getUnreadCount() {
+    return this.state.notifications.filter(n => !n.read).length;
+  }
+
+  getUnreadMessages() {
+    if (!this.state.currentUser) return 0;
+    return this.state.messages.filter(m => 
+      m.receiver_id === this.state.currentUser.id && !m.read
+    ).length;
+  }
+
+  getConversations() {
+    if (!this.state.currentUser) return [];
+
+    const convs = {};
+    this.state.messages.forEach(m => {
+      const otherId = m.sender_id === this.state.currentUser.id ? m.receiver_id : m.sender_id;
+      if (!convs[otherId]) convs[otherId] = [];
+      convs[otherId].push(m);
+    });
+
+    return Object.entries(convs).map(([id, msgs]) => ({
+      userId: id,
+      messages: msgs.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)),
+      lastMessage: msgs[msgs.length - 1],
+      unread: msgs.filter(m => m.receiver_id === this.state.currentUser.id && !m.read).length
+    })).sort((a, b) => new Date(b.lastMessage.created_at) - new Date(a.lastMessage.created_at));
+  }
+
+  getMyClan() {
+    if (!this.state.currentUser) return null;
+    return this.state.clans.find(c => 
+      c.members?.some(m => m.user_id === this.state.currentUser.id)
+    );
+  }
+
+  getClanMembers(clanId) {
+    const clan = this.state.clans.find(c => c.id === clanId);
+    if (!clan || !clan.members) return [];
+
+    return clan.members.map(m => {
+      const user = this.state.users.find(u => u.id === m.user_id);
+      return { ...m, user };
+    }).filter(m => m.user);
+  }
+
+  getLeaderboard(filter = 'all') {
+    let users = [...this.state.users].filter(u => !u.banned);
+
+    // Apply filter logic here based on time period
+    // For now, just sort by points
+    users.sort((a, b) => b.points - a.points);
+
+    return users;
+  }
+
+  getClanLeaderboard(filter = 'week') {
+    let clans = [...this.state.clans];
+
+    // Apply filter logic here
+    // For now, sort by points
+    clans.sort((a, b) => (b.points || 0) - (a.points || 0));
+
+    return clans;
+  }
+
+  getFilteredTournaments(status = 'all') {
+    let tournaments = [...this.state.tournaments];
+
+    if (status !== 'all') {
+      tournaments = tournaments.filter(t => t.status === status);
+    }
+
+    return tournaments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+
+  getFilteredPlayers(query = '') {
+    let users = this.state.users.filter(u => 
+      u.id !== this.state.currentUser?.id && !u.banned
+    );
+
+    if (query) {
+      const q = query.toLowerCase();
+      users = users.filter(u => u.name.toLowerCase().includes(q));
+    }
+
+    return users;
+  }
+
+  getFilteredClans(query = '') {
+    let clans = [...this.state.clans];
+
+    if (query) {
+      const q = query.toLowerCase();
+      clans = clans.filter(c => 
+        c.name.toLowerCase().includes(q) || 
+        c.tag?.toLowerCase().includes(q)
+      );
+    }
+
+    return clans;
+  }
+
+  // ============================================
+  // PERSISTENCE
+  // ============================================
+
+  persist(key) {
+    const value = this._getNestedValue(this.state, key);
+    localStorage.setItem(`efa_${key}`, JSON.stringify(value));
+  }
+
+  restore(key) {
+    const saved = localStorage.getItem(`efa_${key}`);
+    if (saved) {
+      try {
+        const value = JSON.parse(saved);
+        this.set(key, value);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // ============================================
+  // DEBUG
+  // ============================================
+
+  debug() {
+    console.group('🏬 Store State');
+    console.log('Current User:', this.state.currentUser?.name || 'None');
+    console.log('Current Tab:', this.state.currentTab);
+    console.log('Online:', this.state.isOnline);
+    console.log('Users:', this.state.users.length);
+    console.log('Tournaments:', this.state.tournaments.length);
+    console.log('Clans:', this.state.clans.length);
+    console.log('Messages:', this.state.messages.length);
+    console.log('Notifications:', this.state.notifications.length);
+    console.log('Realtime Channels:', Object.keys(this.state.realtimeChannels).length);
+    console.groupEnd();
+  }
+
+  // ============================================
+  // RESET
+  // ============================================
+
+  reset() {
+    this.state = {
+      currentUser: null,
+      isAuthenticated: false,
+      isLoading: true,
+      currentTab: 'home',
+      previousTab: null,
+      isOnline: navigator.onLine,
+      theme: this.state.theme,
+      language: this.state.language,
+      users: [],
+      tournaments: [],
+      clans: [],
+      messages: [],
+      notifications: [],
+      reports: [],
+      matches: [],
+      usersCache: null,
+      tournamentsCache: null,
+      clansCache: null,
+      messagesCache: null,
+      leaderboardCache: null,
+      cacheTimestamps: {},
+      realtimeChannels: {},
+      onlineUsers: new Set(),
+      currentChatUser: null,
+      currentTournament: null,
+      currentClan: null,
+      currentFriendlyOpponent: null,
+      currentReportId: null,
+      modalOpen: false,
+      notifOpen: false,
+      chatMenuOpen: false,
+      voiceRecording: false,
+      loadingStates: {
+        tournaments: false,
+        clans: false,
+        messages: false,
+        leaderboard: false,
+        friendly: false,
+        profile: false,
+        admin: false
+      },
+      filters: {
+        clanLeaderboard: 'week',
+        playerLeaderboard: 'all',
+        tournamentStatus: 'all'
+      },
+      searchQuery: '',
+      pagination: {
+        tournaments: { page: 1, limit: 20 },
+        clans: { page: 1, limit: 20 },
+        messages: { page: 1, limit: 50 },
+        leaderboard: { page: 1, limit: 50 }
+      }
+    };
+    this.subscribers.clear();
+  }
+}
+
+// Create global store instance
+const store = new Store();
+
+// Make available globally
+window.store = store;
+
+// Helper function for reactive updates
+function watchStore(key, callback, immediate = false) {
+  const unsubscribe = store.subscribe(key, callback);
+  if (immediate) {
+    callback(store.get(key), null, key);
+  }
+  return unsubscribe;
+}
+
+// Helper for batch updates
+function updateStore(updates) {
+  store.batch(updates);
+}
+
+</script>
+<script>
+// ============================================
+// eFootball Arena v3.0 - Main Application
+// ============================================
+
+// ============================================
+// SUPABASE CONFIGURATION
+// ============================================
+const SUPABASE_URL = 'https://toknimlhdbnucgfslaex.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRva25pbWxoZGJudWNnZnNsYWV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNzk3MTcsImV4cCI6MjA5Njc1NTcxN30.Dpyuhbh-aNCyaJRHPS6OnieLlqXMl7zeTWeViP2iLh4';
+const ADMIN_EMAIL = 'rayentkd22@gmail.com';
+const WHATSAPP_GROUP = 'https://chat.whatsapp.com/CQUZiyIxktoFkfxOparUk6?s=cl&p=i&ilr=2';
+
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================
+// COUNTRY DATA
+// ============================================
+const COUNTRIES = {
+  '216': { name: 'تونس', flag: '🇹🇳', code: '+216', en: 'Tunisia' },
+  '20': { name: 'مصر', flag: '🇪🇬', code: '+20', en: 'Egypt' },
+  '966': { name: 'السعودية', flag: '🇸🇦', code: '+966', en: 'Saudi Arabia' },
+  '971': { name: 'الإمارات', flag: '🇦🇪', code: '+971', en: 'UAE' },
+  '974': { name: 'قطر', flag: '🇶🇦', code: '+974', en: 'Qatar' },
+  '965': { name: 'الكويت', flag: '🇰🇼', code: '+965', en: 'Kuwait' },
+  '962': { name: 'الأردن', flag: '🇯🇴', code: '+962', en: 'Jordan' },
+  '961': { name: 'لبنان', flag: '🇱🇧', code: '+961', en: 'Lebanon' },
+  '963': { name: 'سوريا', flag: '🇸🇾', code: '+963', en: 'Syria' },
+  '964': { name: 'العراق', flag: '🇮🇶', code: '+964', en: 'Iraq' },
+  '967': { name: 'اليمن', flag: '🇾🇪', code: '+967', en: 'Yemen' },
+  '212': { name: 'المغرب', flag: '🇲🇦', code: '+212', en: 'Morocco' },
+  '213': { name: 'الجزائر', flag: '🇩🇿', code: '+213', en: 'Algeria' },
+  '218': { name: 'ليبيا', flag: '🇱🇾', code: '+218', en: 'Libya' },
+  '249': { name: 'السودان', flag: '🇸🇩', code: '+249', en: 'Sudan' },
+  '970': { name: 'فلسطين', flag: '🇵🇸', code: '+970', en: 'Palestine' }
+};
+
+// ============================================
+// RANK SYSTEM
+// ============================================
+const RANKS = [
+  { name: 'Bronze', icon: '🥉', color: '#cd7f32', min: 0, next: 100 },
+  { name: 'Silver', icon: '🥈', color: '#94a3b8', min: 100, next: 250 },
+  { name: 'Gold', icon: '🥇', color: '#f5c518', min: 250, next: 500 },
+  { name: 'Diamond', icon: '💎', color: '#b9f2ff', min: 500, next: 800 },
+  { name: 'Elite', icon: '👑', color: '#a855f7', min: 800, next: 1200 },
+  { name: 'Champion', icon: '🏆', color: '#ef4444', min: 1200, next: 9999 }
+];
+
+function getRank(points) {
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (points >= RANKS[i].min) return RANKS[i];
+  }
+  return RANKS[0];
+}
+
+function getRankProgress(points) {
+  const rank = getRank(points);
+  const nextRank = RANKS.find(r => r.min > rank.min);
+  if (!nextRank) return { percent: 100, text: I18N.currentLang === 'ar' ? '🏆 Champion MAX!' : '🏆 Champion MAX!' };
+  const progress = ((points - rank.min) / (nextRank.min - rank.min)) * 100;
+  const needed = nextRank.min - points;
+  return {
+    percent: Math.min(progress, 100),
+    text: I18N.currentLang === 'ar'
+      ? `${points} نقطة • ${needed} نقطة للترقية لـ ${nextRank.name}`
+      : `${points} pts • ${needed} pts to ${nextRank.name}`
+  };
+}
+
+// ============================================
+// ACHIEVEMENTS SYSTEM
+// ============================================
+const ACHIEVEMENTS = [
+  { id: 'first_win', icon: '🏆', condition: (u) => u.wins >= 1 },
+  { id: 'first_loss', icon: '💔', condition: (u) => u.losses >= 1 },
+  { id: 'win_streak_3', icon: '🔥', condition: (u) => u.best_streak >= 3 },
+  { id: 'win_streak_5', icon: '⚡', condition: (u) => u.best_streak >= 5 },
+  { id: 'win_streak_10', icon: '👑', condition: (u) => u.best_streak >= 10 },
+  { id: '100_goals', icon: '⚽', condition: (u) => u.goals >= 100 },
+  { id: '500_goals', icon: '🎯', condition: (u) => u.goals >= 500 },
+  { id: '1000_goals', icon: '🚀', condition: (u) => u.goals >= 1000 },
+  { id: 'tournament_winner', icon: '🏅', condition: (u) => u.tournament_wins >= 1 },
+  { id: 'tournament_participant', icon: '🎮', condition: (u) => u.tournament_participations >= 1 },
+  { id: 'clan_member', icon: '🛡️', condition: (u) => u.clan_id !== null },
+  { id: 'clan_leader', icon: '👑', condition: (u) => u.clan_role === 'leader' },
+  { id: 'verified', icon: '✅', condition: (u) => u.verified },
+  { id: 'social_butterfly', icon: '💬', condition: (u) => u.total_messages >= 100 },
+  { id: 'veteran', icon: '🎖️', condition: (u) => u.days_active >= 30 },
+  { id: 'legend', icon: '⭐', condition: (u) => u.points >= 2000 }
+];
+
+function getUserAchievements(user) {
+  if (!user) return [];
+  return ACHIEVEMENTS.map(a => ({
+    ...a,
+    unlocked: a.condition(user),
+    name: I18N.t(`achievement.${a.id}`)
+  }));
+}
+
+// ============================================
+// SUPABASE API HELPERS
+// ============================================
+async function supabaseSelect(table, columns = '*', filters = {}) {
+  let url = `${SUPABASE_URL}/rest/v1/${table}?select=${columns}`;
+  for (const [key, val] of Object.entries(filters)) {
+    if (val !== undefined && val !== null && val !== '') {
+      url += `&${key}=eq.${encodeURIComponent(val)}`;
+    }
+  }
+  const res = await fetch(url, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function supabaseInsert(table, data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function supabaseUpdate(table, id, data) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function supabaseDelete(table, id) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Prefer': 'return=representation'
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function supabaseUpload(bucket, filePath, file) {
+  const url = `${SUPABASE_URL}/storage/v1/object/${bucket}/${filePath}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': file.type || 'application/octet-stream'
+    },
+    body: file
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Upload failed (${res.status}): ${errorText}`);
+  }
+  return res.json();
+}
+
+function getPublicUrl(bucket, filePath) {
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${filePath}`;
+}
+
+// ============================================
+// REALTIME SUBSCRIPTIONS
+// ============================================
+let realtimeSubscriptions = {};
+
+function subscribeToTable(table, callback, event = '*') {
+  const channelName = `${table}_changes`;
+
+  // Remove existing subscription
+  if (realtimeSubscriptions[channelName]) {
+    sbClient.removeChannel(realtimeSubscriptions[channelName]);
+  }
+
+  const channel = sbClient
+    .channel(channelName)
+    .on('postgres_changes', { event, schema: 'public', table }, callback)
+    .subscribe();
+
+  realtimeSubscriptions[channelName] = channel;
+  store.addChannel(channelName, channel);
+
+  return channel;
+}
+
+function subscribeToMessages(userId, callback) {
+  const channelName = `messages_${userId}`;
+
+  if (realtimeSubscriptions[channelName]) {
+    sbClient.removeChannel(realtimeSubscriptions[channelName]);
+  }
+
+  const channel = sbClient
+    .channel(channelName)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'messages',
+      filter: `receiver_id=eq.${userId}`
+    }, callback)
+    .subscribe();
+
+  realtimeSubscriptions[channelName] = channel;
+  store.addChannel(channelName, channel);
+
+  return channel;
+}
+
+function subscribeToNotifications(userId, callback) {
+  const channelName = `notifications_${userId}`;
+
+  if (realtimeSubscriptions[channelName]) {
+    sbClient.removeChannel(realtimeSubscriptions[channelName]);
+  }
+
+  const channel = sbClient
+    .channel(channelName)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'user_notifications',
+      filter: `user_id=eq.${userId}`
+    }, callback)
+    .subscribe();
+
+  realtimeSubscriptions[channelName] = channel;
+  store.addChannel(channelName, channel);
+
+  return channel;
+}
+
+function unsubscribeAll() {
+  Object.values(realtimeSubscriptions).forEach(channel => {
+    sbClient.removeChannel(channel);
+  });
+  realtimeSubscriptions = {};
+  store.set('realtimeChannels', {});
+}
+
+// ============================================
+// TOAST SYSTEM
+// ============================================
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+window.addEventListener('load', async () => {
+  try {
+    // Initialize store
+    store.restore('currentUser');
+
+    // Check auth
+    const { data: { session } } = await sbClient.auth.getSession();
+    if (session && session.user) {
+      await loadOrCreateUserFromAuth(session.user);
+    } else {
+      const savedUser = localStorage.getItem('efa_currentUser');
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        store.setUser(user);
+        await refreshCurrentUser();
+      }
+    }
+  } catch (e) {
+    console.error('Auth check error:', e);
+  }
+
+  // Show app or auth screen
+  setTimeout(() => {
+    document.getElementById('loading-screen').classList.add('hidden');
+    if (store.get('isAuthenticated')) {
+      showApp();
+    } else {
+      document.getElementById('auth-screen').style.display = 'flex';
+    }
+  }, 1200);
+
+  // Auth state change listener
+  sbClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session && session.user) {
+      showToast('🔐 ' + (I18N.currentLang === 'ar' ? 'جاري تسجيل الدخول...' : 'Logging in...'), 'info');
+      await loadOrCreateUserFromAuth(session.user);
+      if (store.get('isAuthenticated')) {
+        showApp();
+        showToast('✅ ' + (I18N.currentLang === 'ar' ? 'مرحباً ' : 'Welcome ') + store.get('currentUser.name') + '!');
+      }
+    }
+  });
+
+  // Online/offline listeners
+  window.addEventListener('online', () => {
+    store.setOnline(true);
+    showToast('🌐 ' + (I18N.currentLang === 'ar' ? 'تم استعادة الاتصال' : 'Connection restored'));
+  });
+
+  window.addEventListener('offline', () => {
+    store.setOnline(false);
+    showToast('📴 ' + (I18N.currentLang === 'ar' ? 'أنت offline' : 'You are offline'), 'info');
+  });
+});
+
+async function refreshCurrentUser() {
+  const user = store.get('currentUser');
+  if (!user || !user.id) return;
+  try {
+    const users = await supabaseSelect('users', '*', { id: user.id });
+    if (users && users.length > 0) {
+      store.setUser(users[0]);
+      localStorage.setItem('efa_currentUser', JSON.stringify(users[0]));
+    }
+  } catch (e) {
+    console.error('Refresh user error:', e);
+  }
+}
+
+async function loadOrCreateUserFromAuth(authUser) {
+  const email = (authUser.email || '').toLowerCase();
+  try {
+    const users = await supabaseSelect('users', '*', { email });
+    let user;
+    if (users && users.length > 0) {
+      user = users[0];
+    } else {
+      const rawName = authUser.user_metadata?.full_name || authUser.user_metadata?.name || email.split('@')[0];
+      const name = rawName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+      const inserted = await supabaseInsert('users', {
+        name, email, password: '', whatsapp: '', country_code: '216',
+        points: 0, wins: 0, losses: 0, goals: 0, rank: 'Bronze', verified: false, banned: false, role: 'user'
+      });
+      user = inserted[0];
+    }
+    if (user.banned) {
+      try { await sbClient.auth.signOut(); } catch (e) {}
+      store.clearUser();
+      localStorage.removeItem('efa_currentUser');
+      showToast('🚫 ' + (I18N.currentLang === 'ar' ? 'هذا الحساب محظور من المنصة' : 'This account is banned'), 'error');
+      return;
+    }
+    store.setUser(user);
+    localStorage.setItem('efa_currentUser', JSON.stringify(user));
+  } catch (e) {
+    console.error('loadOrCreateUserFromAuth error:', e);
+    showToast('❌ ' + (I18N.currentLang === 'ar' ? 'خطأ في تحميل بيانات الحساب' : 'Error loading account'), 'error');
+  }
+}
+
+// ============================================
+// AUTH FUNCTIONS
+// ============================================
+function switchTab(tab) {
+  const loginBtn = document.getElementById('tab-login');
+  const regBtn = document.getElementById('tab-register');
+  if (tab === 'login') {
+    loginBtn.classList.add('active');
+    regBtn.classList.remove('active');
+    document.getElementById('form-login').style.display = 'block';
+    document.getElementById('form-register').style.display = 'none';
+  } else {
+    loginBtn.classList.remove('active');
+    regBtn.classList.add('active');
+    document.getElementById('form-login').style.display = 'none';
+    document.getElementById('form-register').style.display = 'block';
+  }
+}
+
+function togglePass(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+async function loginGoogle() {
+  showToast('🔐 ' + (I18N.currentLang === 'ar' ? 'جاري التحويل إلى Google...' : 'Redirecting to Google...'), 'info');
+  const { error } = await sbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href.split('#')[0].split('?')[0] }
+  });
+  if (error) showToast('❌ ' + error.message, 'error');
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const errDiv = document.getElementById('login-error');
+
+  if (!email || !pass) {
+    errDiv.textContent = '⚠️ ' + (I18N.currentLang === 'ar' ? 'أكمل جميع الحقول' : 'Complete all fields');
+    errDiv.style.display = 'block';
+    return;
+  }
+
+  showToast('🔐 ' + (I18N.currentLang === 'ar' ? 'جاري تسجيل الدخول...' : 'Logging in...'), 'info');
+
+  try {
+    const users = await supabaseSelect('users', '*', { email });
+    const user = users.find(u => u.password === pass);
+
+    if (!user) {
+      errDiv.textContent = '❌ ' + (I18N.currentLang === 'ar' ? 'البريد أو كلمة المرور غير صحيحة' : 'Invalid email or password');
+      errDiv.style.display = 'block';
+      document.getElementById('login-pass').classList.add('animate-shake');
+      setTimeout(() => document.getElementById('login-pass').classList.remove('animate-shake'), 400);
+      return;
+    }
+
+    if (user.banned) {
+      errDiv.textContent = '🚫 ' + (I18N.currentLang === 'ar' ? 'هذا الحساب محظور من المنصة' : 'This account is banned');
+      errDiv.style.display = 'block';
+      return;
+    }
+
+    errDiv.style.display = 'none';
+    store.setUser(user);
+    localStorage.setItem('efa_currentUser', JSON.stringify(user));
+    showApp();
+    showToast('✅ ' + (I18N.currentLang === 'ar' ? 'مرحباً ' : 'Welcome ') + user.name + '!');
+  } catch (e) {
+    errDiv.textContent = '❌ ' + e.message;
+    errDiv.style.display = 'block';
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const countryCode = document.getElementById('reg-country').value;
+  const whatsapp = document.getElementById('reg-whatsapp').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  const errDiv = document.getElementById('reg-error');
+  const succDiv = document.getElementById('reg-success');
+
+  if (!name || !email || !pass || !whatsapp) {
+    errDiv.textContent = '⚠️ ' + (I18N.currentLang === 'ar' ? 'أكمل جميع الحقول' : 'Complete all fields');
+    errDiv.style.display = 'block';
+    succDiv.style.display = 'none';
+    return;
+  }
+  if (pass !== pass2) {
+    errDiv.textContent = '⚠️ ' + (I18N.currentLang === 'ar' ? 'كلمة المرور غير متطابقة' : 'Passwords do not match');
+    errDiv.style.display = 'block';
+    succDiv.style.display = 'none';
+    return;
+  }
+  if (pass.length < 6) {
+    errDiv.textContent = '⚠️ ' + (I18N.currentLang === 'ar' ? 'كلمة المرور قصيرة (6 أحرف على الأقل)' : 'Password too short (min 6 chars)');
+    errDiv.style.display = 'block';
+    succDiv.style.display = 'none';
+    return;
+  }
+  if (!email.includes('@') || !email.includes('.')) {
+    errDiv.textContent = '⚠️ ' + (I18N.currentLang === 'ar' ? 'أدخل بريد إلكتروني صحيح' : 'Enter a valid email');
+    errDiv.style.display = 'block';
+    succDiv.style.display = 'none';
+    return;
+  }
+
+  try {
+    const existing = await supabaseSelect('users', 'id', { email });
+    if (existing.length > 0) {
+      errDiv.textContent = '❌ ' + (I18N.currentLang === 'ar' ? 'هذا البريد مستخدم بالفعل' : 'Email already in use');
+      errDiv.style.display = 'block';
+      succDiv.style.display = 'none';
+      return;
+    }
+
+    const existingName = await supabaseSelect('users', 'id', { name });
+    if (existingName.length > 0) {
+      errDiv.textContent = '❌ ' + (I18N.currentLang === 'ar' ? 'هذا الاسم مستخدم بالفعل' : 'Name already in use');
+      errDiv.style.display = 'block';
+      succDiv.style.display = 'none';
+      return;
+    }
+
+    errDiv.style.display = 'none';
+    succDiv.textContent = '✅ ' + (I18N.currentLang === 'ar' ? 'جاري إنشاء الحساب...' : 'Creating account...');
+    succDiv.style.display = 'block';
+
+    const fullWhatsapp = '+' + countryCode + whatsapp.replace(/^0+/, '');
+    const newUser = await supabaseInsert('users', {
+      name, email, password: pass, whatsapp: fullWhatsapp, country_code: countryCode,
+      points: 0, wins: 0, losses: 0, goals: 0, rank: 'Bronze', verified: false, banned: false, role: 'user'
+    });
+
+    store.setUser(newUser[0]);
+    localStorage.setItem('efa_currentUser', JSON.stringify(newUser[0]));
+    showApp();
+    showToast('✅ ' + (I18N.currentLang === 'ar' ? 'تم إنشاء الحساب!' : 'Account created!'));
+  } catch (e) {
+    errDiv.textContent = '❌ ' + e.message;
+    errDiv.style.display = 'block';
+    succDiv.style.display = 'none';
+  }
+}
+
+async function logout() {
+  try { await sbClient.auth.signOut(); } catch (e) {}
+  store.clearUser();
+  localStorage.removeItem('efa_currentUser');
+  unsubscribeAll();
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  showToast('🚪 ' + (I18N.currentLang === 'ar' ? 'تم تسجيل الخروج' : 'Logged out'));
+}
+
+// ============================================
+// APP FUNCTIONS
+// ============================================
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  updateUI();
+  showTab('home');
+  updateCountdown();
+
+  // Setup realtime subscriptions
+  setupRealtimeSubscriptions();
+
+  // Start background sync
+  startBackgroundSync();
+}
+
+function updateUI() {
+  const user = store.get('currentUser');
+  if (!user) return;
+
+  // Update avatar
+  const avatarText = document.getElementById('user-avatar-text');
+  const avatarImg = document.getElementById('user-avatar-img');
+  if (user.avatar_url) {
+    avatarText.style.display = 'none';
+    avatarImg.src = user.avatar_url;
+    avatarImg.style.display = 'block';
+  } else {
+    avatarText.textContent = user.name[0].toUpperCase();
+    avatarText.style.display = 'block';
+    avatarImg.style.display = 'none';
+  }
+
+  document.getElementById('header-points-val').textContent = user.points;
+
+  // Show admin tab
+  const adminBtn = document.getElementById('tab-btn-admin');
+  if (adminBtn) adminBtn.style.display = isAdmin() ? 'flex' : 'none';
+
+  const newTourBtn = document.getElementById('btn-new-tournament');
+  if (newTourBtn) newTourBtn.style.display = isAdmin() ? 'block' : 'none';
+}
+
+function showTab(name) {
+  const tabs = ['home', 'tournaments', 'tournament-detail', 'clans', 'clan-detail', 'friendly', 'friendly-match', 'leaderboard', 'messages', 'chat', 'profile', 'admin'];
+
+  tabs.forEach(t => {
+    const sec = document.getElementById('sec-' + t);
+    const btn = document.getElementById('tab-btn-' + t);
+    if (sec) sec.style.display = 'none';
+    if (btn) {
+      btn.classList.remove('active');
+    }
+  });
+
+  const selectedSec = document.getElementById('sec-' + name);
+  const selectedBtn = document.getElementById('tab-btn-' + name);
+  if (selectedSec) selectedSec.style.display = 'block';
+  if (selectedBtn) selectedBtn.classList.add('active');
+
+  store.setTab(name);
+
+  // Render content based on tab
+  switch (name) {
+    case 'home': renderHome(); break;
+    case 'tournaments': renderTournaments(); break;
+    case 'clans': renderClans(); break;
+    case 'friendly': renderFriendlyPlayers(); break;
+    case 'leaderboard': renderLeaderboard(); break;
+    case 'messages': renderMessages(); break;
+    case 'profile': updateProfile(); break;
+    case 'admin': showAdminTab('reports'); break;
+  }
+}
+
+function setupRealtimeSubscriptions() {
+  const user = store.get('currentUser');
+  if (!user) return;
+
+  // Subscribe to messages
+  subscribeToMessages(user.id, (payload) => {
+    const newMessage = payload.new;
+    store.addMessage(newMessage);
+
+    // If in chat with sender, render immediately
+    if (store.get('currentChatUser')?.id === newMessage.sender_id) {
+      renderChatMessages();
+      // Mark as read
+      supabaseUpdate('messages', newMessage.id, { read: true });
+    } else {
+      // Show notification
+      showToast('💬 ' + (I18N.currentLang === 'ar' ? 'رسالة جديدة' : 'New message'), 'info');
+      updateNotifBadge();
+    }
+  });
+
+  // Subscribe to notifications
+  subscribeToNotifications(user.id, (payload) => {
+    const newNotif = payload.new;
+    store.addNotification(newNotif);
+    showToast('🔔 ' + newNotif.title, 'info');
+    updateNotifBadge();
+  });
+
+  // Subscribe to tournaments
+  subscribeToTable('tournaments', (payload) => {
+    if (payload.eventType === 'INSERT') {
+      store.set('tournaments', [...store.get('tournaments'), payload.new]);
+      showToast('🏆 ' + (I18N.currentLang === 'ar' ? 'بطولة جديدة!' : 'New tournament!'), 'info');
+    } else if (payload.eventType === 'UPDATE') {
+      const tournaments = store.get('tournaments').map(t => 
+        t.id === payload.new.id ? payload.new : t
+      );
+      store.setTournaments(tournaments);
+    }
+  });
+
+  // Subscribe to clans
+  subscribeToTable('clans', (payload) => {
+    if (payload.eventType === 'INSERT') {
+      store.set('clans', [...store.get('clans'), payload.new]);
+    } else if (payload.eventType === 'UPDATE') {
+      const clans = store.get('clans').map(c => 
+        c.id === payload.new.id ? payload.new : c
+      );
+      store.setClans(clans);
+    }
+  });
+}
+
+function startBackgroundSync() {
+  // Sync every 30 seconds as fallback
+  setInterval(async () => {
+    if (!store.get('isAuthenticated')) return;
+
+    // Sync notifications
+    try {
+      const notifs = await supabaseSelect('user_notifications', '*', { user_id: store.get('currentUser.id') });
+      store.setNotifications(notifs);
+      updateNotifBadge();
+    } catch (e) {}
+
+    // Sync online status
+    try {
+      const users = await supabaseSelect('users', 'id,last_active');
+      const onlineThreshold = Date.now() - 300000; // 5 minutes
+      const onlineUsers = users.filter(u => new Date(u.last_active) > onlineThreshold).map(u => u.id);
+      store.setOnlineUsers(onlineUsers);
+    } catch (e) {}
+  }, 30000);
+}
+
+function updateNotifBadge() {
+  const unread = store.getUnreadCount();
+  const badge = document.getElementById('notif-badge');
+  if (badge) {
+    badge.textContent = unread;
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+  }
+}
+
+// ============================================
+// HOME PAGE
+// ============================================
+async function renderHome() {
+  await updateCountdown();
+  await renderLiveMatches();
+  await renderClanPreview();
+}
+
+let cdTarget = null;
+async function updateCountdown() {
+  try {
+    const tournaments = store.get('tournamentsCache') || await supabaseSelect('tournaments', '*');
+    store.setTournaments(tournaments);
+
+    const upcoming = tournaments.find(t => t.status === 'open' || t.status === 'soon');
+    const countdownEl = document.getElementById('home-countdown');
+
+    if (!upcoming || !upcoming.start_date) {
+      countdownEl.style.display = 'none';
+      return;
+    }
+
+    countdownEl.style.display = 'block';
+    document.getElementById('home-countdown-title').textContent = '🏆 ' + upcoming.name;
+    cdTarget = new Date(upcoming.start_date);
+
+    updateCountdownDisplay();
+  } catch (e) {
+    document.getElementById('home-countdown').style.display = 'none';
+  }
+}
+
+function updateCountdownDisplay() {
+  if (!cdTarget) return;
+  const diff = cdTarget - new Date();
+  if (diff <= 0) {
+    document.getElementById('home-countdown').style.display = 'none';
+    return;
+  }
+
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+
+  document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
+  document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+  document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+  document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+}
+setInterval(updateCountdownDisplay, 1000);
+
+async function renderLiveMatches() {
+  const widget = document.getElementById('live-matches-widget');
+  const list = document.getElementById('live-matches-list');
+  if (!widget || !list) return;
+
+  try {
+    const matches = await supabaseSelect('matches', '*', { status: 'live' });
+    if (matches.length === 0) {
+      widget.style.display = 'none';
+      return;
+    }
+
+    widget.style.display = 'block';
+    list.innerHTML = matches.map(m => `
+      <div class="live-match-card">
+        <div class="live-match-header">
+          <div class="live-match-status">
+            <span class="live-indicator"></span>
+            ${I18N.currentLang === 'ar' ? 'مباشر' : 'LIVE'}
+          </div>
+          <span style="font-size:10px;color:#64748b">${m.tournament_name || ''}</span>
+        </div>
+        <div class="live-match-teams">
+          <div class="live-match-team">
+            <div class="live-match-team-name">${m.p1_name}</div>
+            <div class="live-match-score">${m.p1_score}</div>
+          </div>
+          <span class="live-match-vs">VS</span>
+          <div class="live-match-team">
+            <div class="live-match-team-name">${m.p2_name}</div>
+            <div class="live-match-score">${m.p2_score}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) {
+    widget.style.display = 'none';
+  }
+}
+
+async function renderClanPreview() {
+  const widget = document.getElementById('clan-preview-widget');
+  const list = document.getElementById('clan-preview-list');
+  if (!widget || !list) return;
+
+  try {
+    const clans = store.get('clansCache') || await supabaseSelect('clans', '*');
+    store.setClans(clans);
+
+    const topClans = [...clans].sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 5);
+
+    if (topClans.length === 0) {
+      widget.style.display = 'none';
+      return;
+    }
+
+    widget.style.display = 'block';
+    list.innerHTML = topClans.map((c, i) => `
+      <div class="clan-leaderboard-item" onclick="viewClan('${c.id}')">
+        <span class="clan-rank ${i < 3 ? 'clan-rank-' + (i + 1) : ''}">${i + 1}</span>
+        <div class="clan-info" style="flex:1">
+          <div class="clan-name" style="font-size:13px">${c.name}</div>
+          <div style="font-size:10px;color:#64748b">${c.members?.length || 0}/${c.max_members || 10} ${I18N.currentLang === 'ar' ? 'عضو' : 'members'}</div>
+        </div>
+        <span style="font-weight:700;color:#f5c518">${c.points || 0} pts</span>
+      </div>
+    `).join('');
+  } catch (e) {
+    widget.style.display = 'none';
+  }
+}
+
+async function openReportModal() {
+  if (!store.get('isAuthenticated')) { showToast('❌ ' + t('error.unauthorized'), 'error'); return; }
+  try {
+    let users = store.get('usersCache') || [];
+    if (users.length === 0) {
+      users = await supabaseSelect('users', '*');
+      store.setUsers(users);
+    }
+    const others = users.filter(u => u.id !== store.get('currentUser')?.id && !u.banned);
+
+    openModal(t('home.report'), `
+      <div class="form-group">
+        <label class="form-label">${I18N.currentLang === 'ar' ? 'اللاعب المعني (اختياري)' : 'Player (optional)'}</label>
+        <select id="report-user" class="form-select">
+          <option value="">— ${I18N.currentLang === 'ar' ? 'بدون تحديد' : 'None'} —</option>
+          ${others.map(u => `<option value="${u.id}">${u.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">${t('match.reason')}</label>
+        <textarea id="report-text" rows="4" class="form-input" placeholder="${I18N.currentLang === 'ar' ? 'اشرح المشكلة بالتفصيل...' : 'Explain the issue in detail...'}"></textarea>
+      </div>
+    `);
+    modalCallback = async () => {
+      const text = document.getElementById('report-text').value.trim();
+      const against = document.getElementById('report-user').value || null;
+      if (!text) { showToast('⚠️ ' + t('error.required'), 'error'); return false; }
+      try {
+        await supabaseInsert('reports', { reporter_id: store.get('currentUser').id, against_id: against, text, status: 'pending' });
+        showToast('✅ ' + (I18N.currentLang === 'ar' ? 'تم إرسال البلاغ' : 'Report sent'));
+        return true;
+      } catch (e) { showToast('❌ ' + e.message, 'error'); return false; }
+    };
+  } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+// ============================================
+// ADMIN PANEL
+// ============================================
+function isAdmin() {
+  if (!store.get('isAuthenticated')) return false;
+  const user = store.get('currentUser');
+  const email = user.email?.toLowerCase();
+  return email === ADMIN_EMAIL || ['admin', 'super_admin', 'mod'].includes(user.role);
+}
+
+function isSuperAdmin() {
+  if (!store.get('isAuthenticated')) return false;
+  const user = store.get('currentUser');
+  const email = user.email?.toLowerCase();
+  return email === ADMIN_EMAIL || user.role === 'super_admin';
+}
+
+function showAdminTab(tab) {
+  if (!isAdmin()) { showToast('❌ ' + t('error.forbidden'), 'error'); return; }
+  ['reports', 'tournaments', 'users', 'clans', 'messages', 'broadcast', 'dashboard'].forEach(t => {
+    const btn = document.getElementById('admin-tab-' + t);
+    if (!btn) return;
+    if (t === tab) { btn.classList.add('active'); }
+    else { btn.classList.remove('active'); }
+  });
+
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="empty-state">' + t('common.loading') + '</div>';
+
+  switch (tab) {
+    case 'reports': renderAdminReports(); break;
+    case 'tournaments': renderAdminTournaments(); break;
+    case 'users': renderAdminUsers(); break;
+    case 'clans': renderAdminClans(); break;
+    case 'messages': renderAdminMessages(); break;
+    case 'broadcast': renderAdminBroadcast(); break;
+    case 'dashboard': renderAdminDashboard(); break;
+  }
+}
+
+async function renderAdminDashboard() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+
+  try {
+    const users = await supabaseSelect('users', '*');
+    const tournaments = await supabaseSelect('tournaments', '*');
+    const clans = await supabaseSelect('clans', '*');
+    const reports = await supabaseSelect('reports', '*');
+    const matches = await supabaseSelect('matches', '*');
+
+    const totalPlayers = users.length;
+    const activePlayers = users.filter(u => u.last_active && (Date.now() - new Date(u.last_active)) < 86400000).length;
+    const totalMatches = matches.length;
+    const pendingReports = reports.filter(r => r.status === 'pending').length;
+    const openTournaments = tournaments.filter(t => t.status === 'open').length;
+    const totalClans = clans.length;
+
+    el.innerHTML = `
+      <div class="admin-dashboard">
+        <div class="dashboard-card">
+          <div class="dashboard-value" style="color:var(--accent-gold)">${totalPlayers}</div>
+          <div class="dashboard-label">${I18N.currentLang === 'ar' ? 'إجمالي اللاعبين' : 'Total Players'}</div>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-value" style="color:var(--accent-green)">${activePlayers}</div>
+          <div class="dashboard-label">${I18N.currentLang === 'ar' ? 'نشطين اليوم' : 'Active Today'}</div>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-value" style="color:var(--accent-blue)">${totalMatches}</div>
+          <div class="dashboard-label">${I18N.currentLang === 'ar' ? 'إجمالي المباريات' : 'Total Matches'}</div>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-value" style="color:var(--accent-red)">${pendingReports}</div>
+          <div class="dashboard-label">${I18N.currentLang === 'ar' ? 'بلاغات معلقة' : 'Pending Reports'}</div>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-value" style="color:var(--accent-purple)">${openTournaments}</div>
+          <div class="dashboard-label">${I18N.currentLang === 'ar' ? 'بطولات مفتوحة' : 'Open Tournaments'}</div>
+        </div>
+        <div class="dashboard-card">
+          <div class="dashboard-value" style="color:var(--accent-cyan)">${totalClans}</div>
+          <div class="dashboard-label">${I18N.currentLang === 'ar' ? 'إجمالي الرابطات' : 'Total Clans'}</div>
+        </div>
+      </div>
+      <div class="dashboard-chart">
+        <span style="color:var(--text-muted)">📊 ${I18N.currentLang === 'ar' ? 'الرسوم البيانية قريباً' : 'Charts coming soon'}</span>
+      </div>
+    `;
+  } catch (e) {
+    el.innerHTML = '<div class="empty-state">⚠️ ' + e.message + '</div>';
+  }
+}
+
+async function renderAdminReports() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">' + t('common.loading') + '</div>';
+
+  try {
+    const reports = await supabaseSelect('reports', '*');
+    let users = store.get('usersCache') || [];
+    if (users.length === 0) {
+      users = await supabaseSelect('users', '*');
+      store.setUsers(users);
+    }
+    const getName = (id) => users.find(u => u.id === id)?.name || '—';
+    const sorted = [...reports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    if (sorted.length === 0) { el.innerHTML = '<div class="empty-state">' + (I18N.currentLang === 'ar' ? 'لا توجد بلاغات 👍' : 'No reports 👍') + '</div>'; return; }
+
+    el.innerHTML = sorted.map(r => `
+      <div class="glass" style="border-radius:12px;padding:12px;margin-bottom:9px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-size:11px;font-weight:700;color:#f5c518">${I18N.currentLang === 'ar' ? 'من' : 'From'}: ${getName(r.reporter_id)}</span>
+          <span class="${r.status === 'pending' ? 'status-pending' : 'status-resolved'}" style="font-size:10px;padding:3px 8px;border-radius:20px">${r.status === 'pending' ? '⏳ ' + (I18N.currentLang === 'ar' ? 'قيد المراجعة' : 'Pending') : '✅ ' + (I18N.currentLang === 'ar' ? 'تمت المعالجة' : 'Resolved')}</span>
+        </div>
+        ${r.against_id ? `<div style="font-size:11px;color:#64748b;margin-bottom:6px">${I18N.currentLang === 'ar' ? 'بخصوص' : 'Against'}: ${getName(r.against_id)}</div>` : ''}
+        <div style="font-size:12px;margin-bottom:9px;line-height:1.6">${r.text}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="openReportChat('${r.id}', '${r.reporter_id}')" class="arena-btn" style="font-size:11px;padding:6px 12px;border-radius:8px">💬 ${I18N.currentLang === 'ar' ? 'شات' : 'Chat'}</button>
+          ${r.status === 'pending' ? `<button onclick="resolveReport('${r.id}')" class="arena-btn" style="font-size:11px;padding:6px 12px;border-radius:8px">✅ ${I18N.currentLang === 'ar' ? 'تمت المعالجة' : 'Resolve'}</button>` : ''}
+          <button onclick="confirmDeleteReport('${r.id}')" style="font-size:11px;padding:6px 12px;border-radius:8px;background:none;border:1px solid #ef4444;color:#ef4444;cursor:pointer;font-family:'Cairo',sans-serif">🗑️ ${t('common.delete')}</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (e) { el.innerHTML = '<div class="empty-state">⚠️ ' + e.message + '</div>'; }
+}
+
+async function resolveReport(id) {
+  try { await supabaseUpdate('reports', id, { status: 'resolved' }); showToast('✅ ' + t('success.updated')); renderAdminReports(); }
+  catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+function confirmDeleteReport(id) {
+  confirmDialog(t('common.confirm'), () => { deleteReport(id); });
+}
+
+async function deleteReport(id) {
+  try { await supabaseDelete('reports', id); showToast('🗑️ ' + t('success.deleted')); renderAdminReports(); }
+  catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function renderAdminTournaments() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">' + t('common.loading') + '</div>';
+
+  try {
+    const tournaments = await supabaseSelect('tournaments', '*');
+    store.setTournaments(tournaments);
+
+    el.innerHTML = `<button onclick="openCreateTournament()" class="arena-btn" style="width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:12px">+ ${t('tournaments.new')}</button>` +
+      (tournaments.length === 0 ? '<div class="empty-state">' + t('common.empty') + '</div>' :
+      tournaments.map(t => `
+        <div class="glass" style="border-radius:12px;padding:12px;margin-bottom:9px">
+          <div style="font-size:13px;font-weight:700;margin-bottom:6px">${t.name}</div>
+          <div style="font-size:11px;color:#64748b;margin-bottom:9px">👥 ${t.players?.length || 0}/${t.max_players} ${I18N.currentLang === 'ar' ? 'لاعب' : 'players'} • 📅 ${t.start_date ? new Date(t.start_date).toLocaleString(I18N.currentLang === 'ar' ? 'ar' : 'en') : '—'} ${t.entry_fee > 0 ? '• 💳 ' + t.entry_fee : '• 🆓 ' + (I18N.currentLang === 'ar' ? 'مجانية' : 'Free')} ${t.prize_pool > 0 ? '• 🏆 ' + t.prize_pool : ''}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <select onchange="changeTournamentStatus('${t.id}', this.value)" class="form-select" style="font-size:11px;padding:6px">
+              <option value="open" ${t.status==='open'?'selected':''}>${I18N.currentLang === 'ar' ? 'مفتوحة' : 'Open'}</option>
+              <option value="soon" ${t.status==='soon'?'selected':''}>${I18N.currentLang === 'ar' ? 'قريباً' : 'Soon'}</option>
+              <option value="live" ${t.status==='live'?'selected':''}>${I18N.currentLang === 'ar' ? 'جارية' : 'Live'}</option>
+              <option value="finished" ${t.status==='finished'?'selected':''}>${I18N.currentLang === 'ar' ? 'منتهية' : 'Finished'}</option>
+              <option value="closed" ${t.status==='closed'?'selected':''}>${I18N.currentLang === 'ar' ? 'مغلقة' : 'Closed'}</option>
+            </select>
+            <button onclick="openEditTournamentModal('${t.id}')" class="arena-btn" style="font-size:11px;padding:6px 10px;border-radius:8px">✏️ ${t('common.edit')}</button>
+            <button onclick="confirmDeleteTournament('${t.id}')" style="font-size:11px;padding:6px 12px;border-radius:8px;background:none;border:1px solid #ef4444;color:#ef4444;cursor:pointer;font-family:'Cairo',sans-serif">🗑️ ${t('common.delete')}</button>
+          </div>
+        </div>
+      `).join(''));
+  } catch (e) { el.innerHTML = '<div class="empty-state">⚠️ ' + e.message + '</div>'; }
+}
+
+async function changeTournamentStatus(id, status) {
+  try { await supabaseUpdate('tournaments', id, { status }); showToast('✅ ' + t('success.updated')); renderAdminTournaments(); }
+  catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+function confirmDeleteTournament(id) {
+  confirmDialog(t('common.confirm'), () => { deleteTournament(id); });
+}
+
+async function deleteTournament(id) {
+  try { await supabaseDelete('tournaments', id); showToast('🗑️ ' + t('success.deleted')); renderAdminTournaments(); }
+  catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function renderAdminUsers() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">' + t('common.loading') + '</div>';
+
+  try {
+    const users = await supabaseSelect('users', '*');
+    store.setUsers(users);
+    const sorted = [...users].sort((a, b) => b.points - a.points);
+
+    el.innerHTML = `
+      <input type="text" placeholder="${t('common.search')}" oninput="filterAdminUsers(this.value)" class="search-input">
+      <div id="admin-users-list"></div>
+    `;
+    renderAdminUsersList(sorted);
+  } catch (e) { el.innerHTML = '<div class="empty-state">⚠️ ' + e.message + '</div>'; }
+}
+
+function renderAdminUsersList(users) {
+  const list = document.getElementById('admin-users-list');
+  if (!list) return;
+  if (users.length === 0) { list.innerHTML = '<div class="empty-state">' + t('common.empty') + '</div>'; return; }
+
+  list.innerHTML = users.map(u => {
+    const country = COUNTRIES[u.country_code || '216'] || COUNTRIES['216'];
+    return `<div class="glass ${u.role !== 'user' ? 'sub-admin-card' : ''}" style="border-radius:12px;padding:12px;margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px">
+        <div style="min-width:0;display:flex;align-items:center;gap:8px">
+          <div style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,#7c3aed,#3b82f6);overflow:hidden;flex-shrink:0">
+            ${u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">` : u.name[0]}
+          </div>
+          <div style="min-width:0">
+            <div style="font-size:13px;font-weight:700">${u.name} ${u.verified ? '<span class="badge-verified">✅</span>' : ''} ${u.banned ? '<span style="color:#ef4444;font-size:10px;font-weight:700">🚫 ' + (I18N.currentLang === 'ar' ? 'محظور' : 'Banned') + '</span>' : ''} ${u.role === 'super_admin' ? '<span class="badge-admin">👑 Super</span>' : u.role === 'admin' ? '<span class="badge-admin">⚡ Admin</span>' : u.role === 'mod' ? '<span class="badge-mod">🛡️ Mod</span>' : ''}</div>
+            <div style="font-size:10px;color:#64748b;overflow:hidden;text-overflow:ellipsis">${u.email || ''}</div>
+            <div style="font-size:10px;color:#64748b;margin-top:2px">${country.flag} ${getRank(u.points).icon} ${u.rank} • ${u.points} pts • ${u.wins}W/${u.losses}L • ⚽${u.goals}</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="openEditUserModal('${u.id}')" class="arena-btn" style="font-size:11px;padding:6px 10px;border-radius:8px">✏️ ${t('common.edit')}</button>
+        <button onclick="toggleVerify('${u.id}', ${!u.verified})" style="font-size:11px;padding:6px 10px;border-radius:8px;background:#1a2338;border:1px solid #1e2d45;color:#e2e8f0;cursor:pointer;font-family:'Cairo',sans-serif">${u.verified ? '❌ ' + (I18N.currentLang === 'ar' ? 'إلغاء التوثيق' : 'Unverify') : '✅ ' + (I18N.currentLang === 'ar' ? 'توثيق' : 'Verify')}</button>
+        <button onclick="toggleBan('${u.id}', ${!u.banned})" style="font-size:11px;padding:6px 10px;border-radius:8px;background:none;border:1px solid ${u.banned ? '#22c55e' : '#ef4444'};color:${u.banned ? '#22c55e' : '#ef4444'};cursor:pointer;font-family:'Cairo',sans-serif">${u.banned ? '✅ ' + (I18N.currentLang === 'ar' ? 'إلغاء الحظر' : 'Unban') : '🚫 ' + (I18N.currentLang === 'ar' ? 'حظر' : 'Ban')}</button>
+        ${isSuperAdmin() ? `<button onclick="openRoleModal('${u.id}')" style="font-size:11px;padding:6px 10px;border-radius:8px;background:#1a2338;border:1px solid #f5c518;color:#f5c518;cursor:pointer;font-family:'Cairo',sans-serif">👑 ${I18N.currentLang === 'ar' ? 'رتبة' : 'Role'}</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterAdminUsers(term) {
+  const all = store.get('users') || [];
+  const t = term.toLowerCase();
+  const filtered = all.filter(u => (u.name || '').toLowerCase().includes(t) || (u.email || '').toLowerCase().includes(t));
+  renderAdminUsersList([...filtered].sort((a, b) => b.points - a.points));
+}
+
+async function toggleVerify(id, verified) {
+  try { await supabaseUpdate('users', id, { verified }); showToast('✅ ' + t('success.updated')); renderAdminUsers(); }
+  catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function toggleBan(id, banned) {
+  try { await supabaseUpdate('users', id, { banned }); showToast(banned ? '🚫 ' + t('success.banned') : '✅ ' + t('success.unbanned')); renderAdminUsers(); }
+  catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+function openRoleModal(id) {
+  const u = store.get('users').find(x => x.id === id);
+  if (!u) return;
+  openModal('👑 ' + (I18N.currentLang === 'ar' ? 'تغيير رتبة' : 'Change Role') + ': ' + u.name, `
+    <div class="form-group">
+      <label class="form-label">${I18N.currentLang === 'ar' ? 'الرتبة الحالية' : 'Current Role'}: ${u.role || 'user'}</label>
+      <select id="user-role-select" class="form-select">
+        <option value="user" ${u.role==='user'?'selected':''}>👤 ${I18N.currentLang === 'ar' ? 'مستخدم عادي' : 'User'}</option>
+        <option value="mod" ${u.role==='mod'?'selected':''}>🛡️ ${I18N.currentLang === 'ar' ? 'مشرف' : 'Moderator'}</option>
+        <option value="admin" ${u.role==='admin'?'selected':''}>⚡ ${I18N.currentLang === 'ar' ? 'مسؤول' : 'Admin'}</option>
+        <option value="super_admin" ${u.role==='super_admin'?'selected':''}>👑 Super Admin</option>
+      </select>
+    </div>
+  `);
+  modalCallback = async () => {
+    try {
+      const newRole = document.getElementById('user-role-select').value;
+      await supabaseUpdate('users', id, { role: newRole });
+      showToast('✅ ' + t('success.updated'));
+      renderAdminUsers();
+      return true;
+    } catch (e) { showToast('❌ ' + e.message, 'error'); return false; }
+  };
+}
+
+async function renderAdminClans() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">' + t('common.loading') + '</div>';
+
+  try {
+    const clans = await supabaseSelect('clans', '*');
+    store.setClans(clans);
+
+    el.innerHTML = clans.length === 0 ? '<div class="empty-state">' + t('common.empty') + '</div>' :
+      clans.map(c => `
+        <div class="glass" style="border-radius:12px;padding:12px;margin-bottom:9px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden">
+                ${c.logo_url ? `<img src="${c.logo_url}" style="width:100%;height:100%;object-fit:cover">` : '🛡️'}
+              </div>
+              <div>
+                <div style="font-size:14px;font-weight:700">${c.name}</div>
+                <div style="font-size:10px;color:#64748b">${c.tag || ''} • ${c.members?.length || 0}/${c.max_members || 10} ${I18N.currentLang === 'ar' ? 'عضو' : 'members'}</div>
+              </div>
+            </div>
+            <span style="font-weight:700;color:#f5c518">${c.points || 0} pts</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button onclick="viewClan('${c.id}')" class="arena-btn btn-small">${t('common.details')}</button>
+            <button onclick="confirmDeleteClan('${c.id}')" style="font-size:11px;padding:6px 10px;border-radius:8px;background:none;border:1px solid #ef4444;color:#ef4444;cursor:pointer;font-family:'Cairo',sans-serif">🗑️ ${t('common.delete')}</button>
+          </div>
+        </div>
+      `).join('');
+  } catch (e) { el.innerHTML = '<div class="empty-state">⚠️ ' + e.message + '</div>'; }
+}
+
+function confirmDeleteClan(id) {
+  confirmDialog(t('common.confirm'), () => { deleteClan(id); });
+}
+
+async function deleteClan(id) {
+  try { await supabaseDelete('clans', id); showToast('🗑️ ' + t('success.deleted')); renderAdminClans(); }
+  catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function renderAdminMessages() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+  el.innerHTML = '<div class="empty-state">' + t('common.loading') + '</div>';
+
+  try {
+    const allMsgs = await supabaseSelect('messages', '*');
+    let users = store.get('users') || [];
+    if (users.length === 0) {
+      users = await supabaseSelect('users', '*');
+      store.setUsers(users);
+    }
+
+    const convs = {};
+    allMsgs.forEach(m => {
+      const key = [m.sender_id, m.receiver_id].sort().join('_');
+      if (!convs[key]) convs[key] = { msgs: [], lastMsg: m };
+      convs[key].msgs.push(m);
+      if (new Date(m.created_at) > new Date(convs[key].lastMsg.created_at)) convs[key].lastMsg = m;
+    });
+
+    const sortedConvs = Object.entries(convs).sort((a, b) => new Date(b[1].lastMsg.created_at) - new Date(a[1].lastMsg.created_at));
+
+    if (sortedConvs.length === 0) { el.innerHTML = '<div class="empty-state">' + t('common.empty') + '</div>'; return; }
+
+    el.innerHTML = `
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px">📊 ${allMsgs.length} ${I18N.currentLang === 'ar' ? 'رسالة' : 'messages'} • ${sortedConvs.length} ${I18N.currentLang === 'ar' ? 'محادثة' : 'conversations'}</div>
+      <div style="max-height:500px;overflow-y:auto">
+        ${sortedConvs.map(([key, data]) => {
+          const [u1, u2] = key.split('_');
+          const user1 = users.find(u => u.id === u1);
+          const user2 = users.find(u => u.id === u2);
+          const lastMsg = data.lastMsg;
+          const time = new Date(lastMsg.created_at);
+          const timeStr = time.toLocaleString(I18N.currentLang === 'ar' ? 'ar' : 'en');
+          const textPreview = lastMsg.media_type === 'image' ? '📷 ' + (I18N.currentLang === 'ar' ? 'صورة' : 'Image') : lastMsg.media_type === 'audio' ? '🎵 ' + (I18N.currentLang === 'ar' ? 'تسجيل صوتي' : 'Voice') : lastMsg.text.substring(0, 50);
+
+          return `<div class="glass" style="border-radius:12px;padding:12px;margin-bottom:9px;cursor:pointer" onclick="viewAdminConversation('${u1}', '${u2}')">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:12px;font-weight:700;color:#f5c518">${user1?.name || '—'} ↔ ${user2?.name || '—'}</div>
+              <span style="font-size:10px;color:#64748b">${data.msgs.length} ${I18N.currentLang === 'ar' ? 'رسالة' : 'messages'}</span>
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:4px">${textPreview}${lastMsg.text.length > 50 ? '...' : ''}</div>
+            <div style="font-size:10px;color:#64748b">${timeStr}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+  } catch (e) { el.innerHTML = '<div class="empty-state">⚠️ ' + e.message + '</div>'; }
+}
+
+async function viewAdminConversation(u1, u2) {
+  try {
+    const allMsgs = store.get('messages') || await supabaseSelect('messages', '*');
+    const conv = allMsgs.filter(m =>
+      (m.sender_id === u1 && m.receiver_id === u2) ||
+      (m.sender_id === u2 && m.receiver_id === u1)
+    ).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+    let users = store.get('users') || [];
+    if (users.length === 0) {
+      users = await supabaseSelect('users', '*');
+      store.setUsers(users);
+    }
+    const getName = id => users.find(u => u.id === id)?.name || '—';
+    const user1 = users.find(u => u.id === u1);
+    const user2 = users.find(u => u.id === u2);
+
+    openModal('📨 ' + (I18N.currentLang === 'ar' ? 'محادثة' : 'Conversation') + ': ' + (user1?.name || '—') + ' ↔ ' + (user2?.name || '—'), `
+      <div style="max-height:400px;overflow-y:auto">
+        ${conv.map(m => {
+          const sender = getName(m.sender_id);
+          const time = new Date(m.created_at);
+          const timeStr = time.toLocaleString(I18N.currentLang === 'ar' ? 'ar' : 'en');
+          let content = m.text;
+          if (m.media_type === 'image' && m.media_url) content = `<img src="${m.media_url}" class="chat-image" onclick="window.open('${m.media_url}','_blank')">`;
+          else if (m.media_type === 'audio' && m.media_url) content = `<audio controls class="chat-audio" src="${m.media_url}"></audio>`;
+          return `<div style="margin-bottom:8px;padding:8px;background:#1a2338;border-radius:8px">
+            <div style="font-size:10px;color:#64748b;margin-bottom:4px">${sender} • ${timeStr}</div>
+            <div style="font-size:12px">${content}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `);
+    modalCallback = () => false;
+  } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function renderAdminBroadcast() {
+  const el = document.getElementById('admin-content');
+  if (!el) return;
+
+  el.innerHTML = `
+    <div class="glass" style="border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:700;color:#f5c518;margin-bottom:12px">📢 ${I18N.currentLang === 'ar' ? 'إرسال إشعار للكل' : 'Send Broadcast'}</div>
+      <div class="form-group">
+        <label class="form-label">${I18N.currentLang === 'ar' ? 'عنوان الإشعار' : 'Notification Title'}</label>
+        <input id="bc-title" type="text" placeholder="${I18N.currentLang === 'ar' ? 'مثال: بطولة جديدة' : 'Example: New Tournament'}" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">${I18N.currentLang === 'ar' ? 'محتوى الإشعار' : 'Notification Body'}</label>
+        <textarea id="bc-body" rows="3" placeholder="${I18N.currentLang === 'ar' ? 'اكتب محتوى الإشعار...' : 'Write notification content...'}" class="form-input"></textarea>
+      </div>
+      <button onclick="sendBroadcast()" class="arena-btn" style="width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700">📢 ${I18N.currentLang === 'ar' ? 'إرسال للكل' : 'Send to All'}</button>
+    </div>
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#f5c518">📜 ${I18N.currentLang === 'ar' ? 'الإشعارات السابقة' : 'Previous Broadcasts'}</div>
+    <div id="broadcast-history"></div>
+  `;
+
+  await loadBroadcastHistory();
+}
+
+async function sendBroadcast() {
+  const title = document.getElementById('bc-title').value.trim();
+  const body = document.getElementById('bc-body').value.trim();
+  if (!title || !body) { showToast('⚠️ ' + t('error.required'), 'error'); return; }
+
+  try {
+    await supabaseInsert('broadcast_notifications', { title, body, sent_by: store.get('currentUser').id });
+    const users = await supabaseSelect('users', '*');
+    for (const u of users) {
+      if (!u.banned) await supabaseInsert('user_notifications', { user_id: u.id, title, body });
+    }
+    showToast('✅ ' + (I18N.currentLang === 'ar' ? 'تم إرسال الإشعار لـ ' : 'Sent to ') + users.length + ' ' + (I18N.currentLang === 'ar' ? 'مستخدم' : 'users'));
+    document.getElementById('bc-title').value = '';
+    document.getElementById('bc-body').value = '';
+    await loadBroadcastHistory();
+  } catch (e) { showToast('❌ ' + e.message, 'error'); }
+}
+
+async function loadBroadcastHistory() {
+  try {
+    const broadcasts = await supabaseSelect('broadcast_notifications', '*');
+    const container = document.getElementById('broadcast-history');
+    if (!container) return;
+
+    const sorted = [...broadcasts].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    if (sorted.length === 0) { container.innerHTML = '<div class="empty-state">' + (I18N.currentLang === 'ar' ? 'لا توجد إشعارات سابقة' : 'No previous broadcasts') + '</div>'; return; }
+
+    container.innerHTML = sorted.map(b => {
+      const time = new Date(b.created_at);
+      const timeStr = time.toLocaleString(I18N.currentLang === 'ar' ? 'ar' : 'en');
+      return `<div class="glass" style="border-radius:10px;padding:10px;margin-bottom:6px">
+        <div style="font-size:12px;font-weight:700;color:#f5c518;margin-bottom:4px">${b.title}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:4px">${b.body}</div>
+        <div style="font-size:10px;color:#64748b">${timeStr}</div>
+      </div>`;
+    }).join('');
+  } catch (e) { console.error(e); }
+}
+
+// ============================================
+// MODAL SYSTEM
+// ============================================
+let modalCallback = null;
+
+function openModal(title, body) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal').classList.add('open');
+  store.openModal();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  store.closeModal();
+  modalCallback = null;
+}
+
+function saveModal() {
+  if (modalCallback) {
+    modalCallback().then(result => { if (result) closeModal(); }).catch(e => { showToast('❌ ' + e.message, 'error'); });
+  } else {
+    closeModal();
+  }
+}
+
+function confirmDialog(msg, onConfirm) {
+  openModal('⚠️ ' + (I18N.currentLang === 'ar' ? 'تأكيد' : 'Confirm'), `
+    <div style="text-align:center;padding:10px">
+      <div style="font-size:40px;margin-bottom:10px">⚠️</div>
+      <div style="font-size:14px;line-height:1.6">${msg}</div>
+    </div>
+  `);
+  modalCallback = async () => { onConfirm(); return true; };
+}
+
+// ============================================
+// NOTIFICATIONS PANEL
+// ============================================
+async function renderNotifications() {
+  if (!store.get('isAuthenticated')) return;
+  try {
+    const notifs = await supabaseSelect('user_notifications', '*', { user_id: store.get('currentUser').id });
+    const broadcasts = await supabaseSelect('broadcast_notifications', '*');
+
+    const allNotifs = [
+      ...notifs.map(n => ({...n, type: 'personal'})),
+      ...broadcasts.map(b => ({...b, type: 'broadcast', read: false}))
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    const list = document.getElementById('notif-list');
+    if (!list) return;
+
+    if (allNotifs.length === 0) { list.innerHTML = '<div class="empty-state">' + (I18N.currentLang === 'ar' ? 'لا توجد إشعارات' : 'No notifications') + '</div>'; return; }
+
+    list.innerHTML = allNotifs.map(n => {
+      const time = new Date(n.created_at);
+      const diff = Math.floor((Date.now() - time) / 60000);
+      const timeText = diff < 1 ? t('common.just_now') : diff < 60 ? diff + ' ' + t('common.minutes_ago') : diff < 1440 ? Math.floor(diff/60) + ' ' + t('common.hours_ago') : Math.floor(diff/1440) + ' ' + t('common.days_ago');
+      const borderColor = n.type === 'broadcast' ? '#f5c518' : n.type === 'tournament' ? '#22c55e' : '#3b82f6';
+      const icon = n.type === 'broadcast' ? '📢' : n.type === 'tournament' ? '🏆' : '🔔';
+      return `<div class="notification-item ${n.read ? 'read' : ''}" onclick="markNotificationRead('${n.id}', '${n.type}')">
+        <div style="display:flex;gap:9px">
+          <span style="font-size:18px;flex-shrink:0">${icon}</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;margin-bottom:2px">${n.title}</div>
+            <div style="font-size:11px;line-height:1.5;color:#94a3b8">${n.body}</div>
+            <div style="font-size:9px;color:#64748b;margin-top:4px">${timeText}</div>
+          </div>
+          ${!n.read ? '<span style="width:8px;height:8px;background:#f5c518;border-radius:50%;flex-shrink:0;margin-top:4px"></span>' : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) { document.getElementById('notif-list').innerHTML = '<div class="empty-state">⚠️ ' + (I18N.currentLang === 'ar' ? 'خطأ في تحميل الإشعارات' : 'Error loading notifications') + '</div>'; }
+}
+
+async function markNotificationRead(id, type) {
+  if (type === 'personal') {
+    try { await supabaseUpdate('user_notifications', id, { read: true }); store.markNotificationRead(id); updateNotifBadge(); renderNotifications(); }
+    catch (e) {}
+  }
+}
+
+function toggleNotif() {
+  const panel = document.getElementById('notif-panel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  store.toggleNotif();
+  if (!isOpen) renderNotifications();
+}
+
+// ============================================
+// PWA - Service Worker
+// ============================================
+if ('serviceWorker' in navigator) {
+  const swCode = `self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>new Response('Offline'))));`;
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl).then(() => console.log('✅ SW registered')).catch(err => console.log('⚠️ SW failed:', err));
+}
+
+console.log('⚽ eFootball Arena v3.0 loaded!');
+
+</script>
+</body>
+</html>
